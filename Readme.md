@@ -6,15 +6,15 @@
 I'm using Strava quite heavily (3-5 activities/week) for most of my sport activities like running, cycling, hiking, etc. (see https://www.strava.com/athletes/8844168). At the moment I'm using the Strava iOS App.
 Unfortunatley I started with Runkeeper years ago and switched for a time to Garmin and other tools. Once I exported (more or less all) my tracks from all third parties and uploaded the gpx files to Strava. Strava analyzed all the files for me and added the activities to my statistics. Nice!
 
-I want to have all my activites on my local desktop to analyze the gpx files and create nice stats and graphics. For that I downloaded all my gpx files from Strava and started to look how to parse the gpx files. That's how I discovered __gpxgo__.
+I want to have all my activites on my local desktop to analyze the gpx files and create nice stats and graphics. For that I downloaded all my gpx files from Strava and started to look how to parse the gpx files. That's how I discovered gpxgo.
 
 (How to download all activities see: https://support.strava.com/hc/en-us/articles/216918437-Exporting-your-Data-and-Bulk-Export #Section: Bulk Export at the the end of the page)
 
-The fantastic library __gpxgo__ (https://github.com/tkrajina/gpxgo/issues) by tkrajina parses gpx files and returns information of the gpx/tracks/segements/points like distance, duration and movingtime/distance + stoppedtime/distance.
+The fantastic library gpxgo (https://github.com/tkrajina/gpxgo/issues) by tkrajina parses gpx files and returns information of the gpx/tracks/segements/points like distance, duration and movingtime/distance + stoppedtime/distance.
 
 Unfortunatley the gpx information like distance (movingdistance), duration (movingtime) does not match with the Strava information.
 
-My assumption is that Strava does a quite good in analyzing gpx data and should be the baseline to match. I looked into the libraray and noticed for example that the distance calculation is quite fast but less accurate than other GPS distance clulcation formulas like Haversine and Vincenty. I started to implement these formulas in the libraray and quickly noticed that for each part of the gpx (gpx->track->segment->point) the data is re-calculated new. Additionaly the points which are used for the caluclation for "Moving"Time/Distance are based on the assumption that the speed between two points must be greater than 1.0m/s. That results in a big difference of "Moving"Time/Distance of Strava and the library.
+My assumption is that Strava does a quite good in analyzing gpx data and should be the baseline to match. I looked into the libraray and noticed for example that the distance calculation is quite fast but less accurate than other GPS distance calculation formulas like Haversine and Vincenty. I started to implement these formulas in the libraray and quickly noticed that for each part of the gpx (gpx->track->segment->point) the data is re-calculated new. Additionaly the points which are used for the caluclation for "Moving"Time/Distance are based on the assumption that the speed between two points must be greater than 1.0m/s. That results in a big difference of "Moving"Time/Distance of Strava and the library.
 
 **So I've started to update te libraray as follows:**
 
@@ -27,7 +27,7 @@ My assumption is that Strava does a quite good in analyzing gpx data and should 
 
 **How is the data now agregated?**
 
-At first the point data like duration, distane between the previous poind and the actual point is caluclated (with the user provided methods). The the data is then aggregated to the next level
+At first the point data like duration, distane between the previous and the actual point is caluclated. The the data is then aggregated to the next level as follows:
 
 ```
 Point(distance and duration previous and actual point)
@@ -43,20 +43,21 @@ The structs which define the XML structure of gpx v1.0 and v1.0 are quite simila
 
 **GPX name and timestamp from track and first point**
 
-In the gpx files from Strava (and the other tird parties I've used) no name and sometimes no timestamp is given for gpx at the top level. If that's the case then __gpxs__ uses the name of the track(s) and the timestamp of the first point. The name and timestamp is taken by FIFO (first in first out); that means basically that first name/timestamp is used which exists.
+In the gpx files from Strava (and the other tird parties I've used) no name and sometimes no timestamp is given for gpx at the top level. If that's the case then __gpxs__ uses the name of the track(s) and the timestamp of the first point. The name and timestamp is taken by FIFO (first in first out); that means basically that first name/timestamp is used.
 
 **User method to calculate distance, duration, speed, pace + method to normalize the points**
 
-The idea is that the uses who uses this libraray provides own methods to calculate the points data. That means the users could use a GPS distance calculatio not yet provided by the library. Additionaly you could use your own standardize method o use only the points you want to use for your calculation.
+The idea is that the users who use this libraray provides own methods to calculate the points data. That means the users could use a GPS distance calculatio not yet provided by the library. Additionaly you could use your own standardize method to use only the points you want to use for your calculation.
+
 Methods implemented:
-- "Standard Method" by __gpxgo__: Basic but fast calculation of distance between two points
+- "Standard Method" by gpxgo: Basic but fast calculation of distance between two points
 - Vincenty: More accurate methods
-- Normalize method (1): Threshold by __gpxgo__; use only points above speed threshold of 1m/s
+- Normalize method (1): Threshold by gpxgo; use only points above speed threshold of 1m/s
 - Normalize method (2): Standard deviation (see below)
 
 **New GPS distance cluclation**
 
-Added a method to use GPS formula Vincenty. Also added the calculation methods from __gpxgo__ as the "Standard Algorithm".
+Added a method to use GPS formula Vincenty. Also added the calculation methods from gpxgo as the "Standard Algorithm".
 
 **Standard deviation for "Moving"Time/Distance?**
 
@@ -73,26 +74,18 @@ Obvious the data between these two point p0 and p1 shouldn't be used for the "Mo
 The idea of gpxgo is that the speed between two points must be grater than 1m/s; then the points are used for the caluclation. The approach is fair enough since it's quite fast. But for me the different to Strava is too much (for example the duration for a cycling tour with gpxgo is 3h20min and with Stava it's 2h45min which is the "real" movingtime from my trip).
 
 The standard deviation (https://en.wikipedia.org/wiki/Standard_deviation) uses all points data of the gpx track and "quantifies the amount of variation or dispersion of the set of data values". In my words: You define a weightehd average of all points duration and then define that only the points should be used which are close enough to that duration average (like 90% or 95%).
-With an standard deviation Sigma σ of 1.644854 (~95%) I'm quite close to the Strava information (only some seconds in each of my ~1050 gpx files.
+With an standard deviation Sigma σ of 1.644854 (~95%) I'm quite close to the Strava information (only some seconds in each of my ~1050 gpx files).
 
 So good enough for me!
 
 **Performance**
+
 See benchmarks below.
 
-My assumption was that the "new" libraray gpxs is faster than __gpxgo__ because of the new aggregation method. For a benchmark of Vincenty I added the method to __gpxgo__. __gpxgo__ does not use the standard deviation; so __gpxgs__ is instrumented to use the same "normalization method" as __gpxgo__.
+My assumption was that the "new" libraray gpxs is faster than gpxgo because of the new aggregation method. For a benchmark of Vincenty I added the method to gpxgo. gpxgo does not use the standard deviation; so __gpxgs__ is instrumented to use the same "normalization method" as gpxgo.
 
 
-__Basic distance cluclation; no standard deviation; default speed threshold of 1m/sec (gpx files: 1046)__
-gpxs (3) 17.2373831s vs. gpxgo (1) 19.1264728s
-
-__Vincenty distance calculation; no standard deviation; default speed threshold of 1m/sec (gpx files: 1046)__
-gpxs (2) 23.014476s vs. gpxgo (2) 25.3617024s
-
-__Vincenty distance caluclation; standard deviation of 1.644854__
-gpxs (1) 21.5685324s vs. pxgo (not implemented)
-
-**Conclusion**
+__**Conclusion**__
 
 The reuslts of gpxs (distance, "moving"time/distance, "stopped"time/distance) are for **me more accurate**. "More accurate" **means for me** the calculated infomation is closer to Stava which is **my baseline**.
 
