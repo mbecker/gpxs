@@ -16,3 +16,4 @@ vendor
 
 # Test files
 test/gpx_all
+test/gpx_one
