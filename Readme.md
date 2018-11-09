@@ -115,8 +115,7 @@ Additionaly the new approach to use custom methods to normalize the data sete an
 **gpxs**
 > Benchmark with different GPS distance calculation methods; different normalization methods (standard deviation vs. default speed threshold)
 
-|           TYPE           |     VINCENTY W/O STANDARD      |     VINCENTY WITH STANDARD     |
-|                          |           DEVIATION            |           DEVIATION            |
+|           TYPE           |VINCENTY W/O SD                 |VINCENTY WITH SD                |
 |--------------------------|--------------------------------|--------------------------------|
 | # of files               |                           1047 |                           1047 |
 | ------                   | ------                         | ------                         |
@@ -144,8 +143,7 @@ Additionaly the new approach to use custom methods to normalize the data sete an
 | Execution time           | 21.2522902s                    | 20.9845598s                    |
 
 
-|           TYPE           |    STANDARD (LENGTH2D) W/O     |    STANDARD (LENGTH2D) WITH    |
-|                          |       STANDARD DEVIATION       |       STANDARD DEVIATION       |
+|           TYPE           |STANDARD (LENGTH2D) W/O SD      |  STANDARD (LENGTH2D) WITH SD   |
 |--------------------------|--------------------------------|--------------------------------|
 | # of files               |                           1047 |                           1047 |
 | ------                   | ------                         | ------                         |
@@ -173,8 +171,7 @@ Additionaly the new approach to use custom methods to normalize the data sete an
 | Execution time           | 17.259622s                     | 16.9360493s                    |
 
 
-|           TYPE           |    STANDARD (LENGTH3D) W/O     |    STANDARD (LENGTH3D) WITH    |
-|                          |       STANDARD DEVIATION       |       STANDARD DEVIATION       |
+|           TYPE           |    STANDARD (LENGTH3D) W/O SD  |    STANDARD (LENGTH3D) WITH SD |
 |--------------------------|--------------------------------|--------------------------------|
 | # of files               |                           1047 |                           1047 |
 | ------                   | ------                         | ------                         |
