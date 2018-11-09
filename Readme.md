@@ -115,6 +115,35 @@ Additionaly the new approach to use custom methods to normalize the data sete an
 **gpxs**
 > Benchmark with different GPS distance calculation methods; different normalization methods (standard deviation vs. default speed threshold)
 
+|           TYPE           |     VINCENTY W/O STANDARD      |     VINCENTY WITH STANDARD     |
+|                          |           DEVIATION            |           DEVIATION            |
+|--------------------------|--------------------------------|--------------------------------|
+| # of files               |                           1047 |                           1047 |
+| ------                   | ------                         | ------                         |
+| GPX Duration             | 1009h13m1s                     | 1009h13m1s                     |
+| GPX Distance             |                   11543.863484 |                   11543.863484 |
+| GPX Moving Time          | 931h54m37s                     | 894h42m47s                     |
+| GPX Stopped Time         | 77h18m24s                      | 114h30m14s                     |
+| GPX Moving Distance      |                   11462.968677 |                   10886.758060 |
+| GPX Stopped Distance     |                      80.894806 |                     657.105423 |
+| ------                   | ------                         | ------                         |
+| Track Duration           | 1009h13m1s                     | 1009h13m1s                     |
+| Track Distance           |                   11543.863484 |                   11543.863484 |
+| Track Moving Time        | 931h54m37s                     | 894h42m47s                     |
+| Track Stopped Time       | 77h18m24s                      | 114h30m14s                     |
+| Track Moving Distance    |                   11462.968677 |                   10886.758060 |
+| Track Stopped Distance   |                      80.894806 |                     657.105423 |
+| ------                   | ------                         | ------                         |
+| Segment Duration         | 1009h13m1s                     | 1009h13m1s                     |
+| Segment Distance         |                   11543.863484 |                   11543.863484 |
+| Segment Moving Time      | 931h54m37s                     | 894h42m47s                     |
+| Segment Stopped Time     | 77h18m24s                      | 114h30m14s                     |
+| Segment Moving Distance  |                   11462.968677 |                   10886.758060 |
+| Segment Stopped Distance |                      80.894806 |                     657.105423 |
+| ------                   | ------                         | ------                         |
+| Execution time           | 21.2726596s                    | 21.7201131s                    |
+
+
 |           TYPE           |    STANDARD (LENGTH2D) W/O SD  |    STANDARD (LENGTH2D) WITH SD |
 |--------------------------|--------------------------------|--------------------------------|
 | # of files               |                           1047 |                           1047 |
