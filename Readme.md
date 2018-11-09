@@ -115,33 +115,92 @@ Additionaly the new approach to use custom methods to normalize the data sete an
 **gpxs**
 > Benchmark with different GPS distance calculation methods; different normalization methods (standard deviation vs. default speed threshold)
 
-|           TYPE           |     VINCENTY W/O STANDARD      |     VINCENTY WITH STANDARD     |    STANDARD (LENGTH2D) W/O     |    STANDARD (LENGTH2D) WITH    |    STANDARD (LENGTH3D) W/O     |    STANDARD (LENGTH3D) WITH    |
-|                          |           DEVIATION            |           DEVIATION            |       STANDARD DEVIATION       |       STANDARD DEVIATION       |       STANDARD DEVIATION       |       STANDARD DEVIATION       |
-|--------------------------|--------------------------------|--------------------------------|--------------------------------|--------------------------------|--------------------------------|--------------------------------|
-| # of files               |                           1047 |                           1047 |                           1047 |                           1047 |                           1047 |                           1047 |
-| ------                   | ------                         | ------                         | ------                         | ------                         | ------                         | ------                         |
-| GPX Duration             | 1009h13m1s                     | 1009h13m1s                     | 1009h13m1s                     | 1009h13m1s                     | 1009h13m1s                     | 1009h13m1s                     |
-| GPX Distance             |                   11543.863484 |                   11543.863484 |                   11536.670900 |                   11536.670900 |                   11536.670900 |                   11536.670900 |
-| GPX Moving Time          | 894h42m47s                     | 894h42m47s                     | 931h53m52s                     | 894h42m47s                     | 931h53m52s                     | 894h42m47s                     |
-| GPX Stopped Time         | 114h30m14s                     | 114h30m14s                     | 77h19m9s                       | 114h30m14s                     | 77h19m9s                       | 114h30m14s                     |
-| GPX Moving Distance      |                   10886.758060 |                   10886.758060 |                   11455.737927 |                   10880.014470 |                   11455.737927 |                   10880.014470 |
-| GPX Stopped Distance     |                     657.105423 |                     657.105423 |                      80.932973 |                     656.656430 |                      80.932973 |                     656.656430 |
-| ------                   | ------                         | ------                         | ------                         | ------                         | ------                         | ------                         |
-| Track Duration           | 1009h13m1s                     | 1009h13m1s                     | 1009h13m1s                     | 1009h13m1s                     | 1009h13m1s                     | 1009h13m1s                     |
-| Track Distance           |                   11543.863484 |                   11543.863484 |                   11536.670900 |                   11536.670900 |                   11536.670900 |                   11536.670900 |
-| Track Moving Time        | 894h42m47s                     | 894h42m47s                     | 931h53m52s                     | 894h42m47s                     | 931h53m52s                     | 894h42m47s                     |
-| Track Stopped Time       | 114h30m14s                     | 114h30m14s                     | 77h19m9s                       | 114h30m14s                     | 77h19m9s                       | 114h30m14s                     |
-| Track Moving Distance    |                   10886.758060 |                   10886.758060 |                   11455.737927 |                   10880.014470 |                   11455.737927 |                   10880.014470 |
-| Track Stopped Distance   |                     657.105423 |                     657.105423 |                      80.932973 |                     656.656430 |                      80.932973 |                     656.656430 |
-| ------                   | ------                         | ------                         | ------                         | ------                         | ------                         | ------                         |
-| Segment Duration         | 1009h13m1s                     | 1009h13m1s                     | 1009h13m1s                     | 1009h13m1s                     | 1009h13m1s                     | 1009h13m1s                     |
-| Segment Distance         |                   11543.863484 |                   11543.863484 |                   11536.670900 |                   11536.670900 |                   11536.670900 |                   11536.670900 |
-| Segment Moving Time      | 894h42m47s                     | 894h42m47s                     | 931h53m52s                     | 894h42m47s                     | 931h53m52s                     | 894h42m47s                     |
-| Segment Stopped Time     | 114h30m14s                     | 114h30m14s                     | 77h19m9s                       | 114h30m14s                     | 77h19m9s                       | 114h30m14s                     |
-| Segment Moving Distance  |                   10886.758060 |                   10886.758060 |                   11455.737927 |                   10880.014470 |                   11455.737927 |                   10880.014470 |
-| Segment Stopped Distance |                     657.105423 |                     657.105423 |                      80.932973 |                     656.656430 |                      80.932973 |                     656.656430 |
-| ------                   | ------                         | ------                         | ------                         | ------                         | ------                         | ------                         |
-| Execution time           | 21.5643535s                    | 20.8448645s                    | 16.9367893s                    | 17.0631317s                    | 17.0116919s                    | 16.5284669s                    |
+|           TYPE           |     VINCENTY W/O STANDARD      |     VINCENTY WITH STANDARD     |
+|                          |           DEVIATION            |           DEVIATION            |
+|--------------------------|--------------------------------|--------------------------------|
+| # of files               |                           1047 |                           1047 |
+| ------                   | ------                         | ------                         |
+| GPX Duration             | 1009h13m1s                     | 1009h13m1s                     |
+| GPX Distance             |                   11543.863484 |                   11543.863484 |
+| GPX Moving Time          | 894h42m47s                     | 894h42m47s                     |
+| GPX Stopped Time         | 114h30m14s                     | 114h30m14s                     |
+| GPX Moving Distance      |                   10886.758060 |                   10886.758060 |
+| GPX Stopped Distance     |                     657.105423 |                     657.105423 |
+| ------                   | ------                         | ------                         |
+| Track Duration           | 1009h13m1s                     | 1009h13m1s                     |
+| Track Distance           |                   11543.863484 |                   11543.863484 |
+| Track Moving Time        | 894h42m47s                     | 894h42m47s                     |
+| Track Stopped Time       | 114h30m14s                     | 114h30m14s                     |
+| Track Moving Distance    |                   10886.758060 |                   10886.758060 |
+| Track Stopped Distance   |                     657.105423 |                     657.105423 |
+| ------                   | ------                         | ------                         |
+| Segment Duration         | 1009h13m1s                     | 1009h13m1s                     |
+| Segment Distance         |                   11543.863484 |                   11543.863484 |
+| Segment Moving Time      | 894h42m47s                     | 894h42m47s                     |
+| Segment Stopped Time     | 114h30m14s                     | 114h30m14s                     |
+| Segment Moving Distance  |                   10886.758060 |                   10886.758060 |
+| Segment Stopped Distance |                     657.105423 |                     657.105423 |
+| ------                   | ------                         | ------                         |
+| Execution time           | 21.2522902s                    | 20.9845598s                    |
+
+
+|           TYPE           |    STANDARD (LENGTH2D) W/O     |    STANDARD (LENGTH2D) WITH    |
+|                          |       STANDARD DEVIATION       |       STANDARD DEVIATION       |
+|--------------------------|--------------------------------|--------------------------------|
+| # of files               |                           1047 |                           1047 |
+| ------                   | ------                         | ------                         |
+| GPX Duration             | 1009h13m1s                     | 1009h13m1s                     |
+| GPX Distance             |                   11536.670900 |                   11536.670900 |
+| GPX Moving Time          | 931h53m52s                     | 894h42m47s                     |
+| GPX Stopped Time         | 77h19m9s                       | 114h30m14s                     |
+| GPX Moving Distance      |                   11455.737927 |                   10880.014470 |
+| GPX Stopped Distance     |                      80.932973 |                     656.656430 |
+| ------                   | ------                         | ------                         |
+| Track Duration           | 1009h13m1s                     | 1009h13m1s                     |
+| Track Distance           |                   11536.670900 |                   11536.670900 |
+| Track Moving Time        | 931h53m52s                     | 894h42m47s                     |
+| Track Stopped Time       | 77h19m9s                       | 114h30m14s                     |
+| Track Moving Distance    |                   11455.737927 |                   10880.014470 |
+| Track Stopped Distance   |                      80.932973 |                     656.656430 |
+| ------                   | ------                         | ------                         |
+| Segment Duration         | 1009h13m1s                     | 1009h13m1s                     |
+| Segment Distance         |                   11536.670900 |                   11536.670900 |
+| Segment Moving Time      | 931h53m52s                     | 894h42m47s                     |
+| Segment Stopped Time     | 77h19m9s                       | 114h30m14s                     |
+| Segment Moving Distance  |                   11455.737927 |                   10880.014470 |
+| Segment Stopped Distance |                      80.932973 |                     656.656430 |
+| ------                   | ------                         | ------                         |
+| Execution time           | 17.259622s                     | 16.9360493s                    |
+
+
+|           TYPE           |    STANDARD (LENGTH3D) W/O     |    STANDARD (LENGTH3D) WITH    |
+|                          |       STANDARD DEVIATION       |       STANDARD DEVIATION       |
+|--------------------------|--------------------------------|--------------------------------|
+| # of files               |                           1047 |                           1047 |
+| ------                   | ------                         | ------                         |
+| GPX Duration             | 1009h13m1s                     | 1009h13m1s                     |
+| GPX Distance             |                   11536.670900 |                   11536.670900 |
+| GPX Moving Time          | 931h53m52s                     | 894h42m47s                     |
+| GPX Stopped Time         | 77h19m9s                       | 114h30m14s                     |
+| GPX Moving Distance      |                   11455.737927 |                   10880.014470 |
+| GPX Stopped Distance     |                      80.932973 |                     656.656430 |
+| ------                   | ------                         | ------                         |
+| Track Duration           | 1009h13m1s                     | 1009h13m1s                     |
+| Track Distance           |                   11536.670900 |                   11536.670900 |
+| Track Moving Time        | 931h53m52s                     | 894h42m47s                     |
+| Track Stopped Time       | 77h19m9s                       | 114h30m14s                     |
+| Track Moving Distance    |                   11455.737927 |                   10880.014470 |
+| Track Stopped Distance   |                      80.932973 |                     656.656430 |
+| ------                   | ------                         | ------                         |
+| Segment Duration         | 1009h13m1s                     | 1009h13m1s                     |
+| Segment Distance         |                   11536.670900 |                   11536.670900 |
+| Segment Moving Time      | 931h53m52s                     | 894h42m47s                     |
+| Segment Stopped Time     | 77h19m9s                       | 114h30m14s                     |
+| Segment Moving Distance  |                   11455.737927 |                   10880.014470 |
+| Segment Stopped Distance |                      80.932973 |                     656.656430 |
+| ------                   | ------                         | ------                         |
+| Execution time           | 17.2091029s                    | 16.769348s                     |
+
 
 > gpxgo Benchmark - The execution with the Vincenty forula takes longer due to more caluclation steps
 
