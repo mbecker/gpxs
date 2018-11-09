@@ -112,6 +112,8 @@ Additionaly the new approach to use custom methods to normalize the data sete an
 
 # Bechmark: Different gps distance calculations
 
+> See Google Sheets: https://docs.google.com/spreadsheets/d/1NapqlDL7DBYxzw53JUSJokM6-iCYHhJsiehCRhK2kDw/edit?usp=sharing
+
 **gpxs**
 > Benchmark with different GPS distance calculation methods; different normalization methods (standard deviation vs. default speed threshold)
 
