@@ -58,6 +58,7 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 						gpxTrack.Timestamp = &gpxSegment.Points[0].Timestamp
 					}
 
+					// Loop all points and set the data of each point like duration, distance, speed, etc.
 					for index := 1; index < len(segment.Points); index++ {
 						prevPoint = gpxSegment.Points[index-1]
 
@@ -75,61 +76,111 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 						gpxSegment.Points[index] = gpxPoint
 					}
 
-					// Set gpxSegment data
-
-					// Standard deviation to have a baseline of points for the calculations
-					// 1. Define the mean mu (μ) for a population series: All summed values / count of values
-					μ := gpxSegment.Duration / float64(len(gpxSegment.Points)) // The mean mu (μ) for a population series
-
-					// 2.a) Define Deviation for each point: (x1−μ)
-					// 2.b) Square each deviation: (x1−μ)^2
-					// 2.c) Sum all squared deviation from each point
-					var squaredDeviationSum float64 // Sum of all squared deviation from each point
-					for index := 1; index < len(gpxSegment.Points); index++ {
-						point := gpxSegment.Points[index]
-						squaredDeviationSum += math.Pow(point.Duration-μ, 2)
-					}
-
-					// 3. Define the variance of the population: Divide the sum of all squared deviation of each points by the number of the population (in the previous step we used all point except the first one: len(seg.Points)-1)
-					variance := squaredDeviationSum / float64((len(gpxSegment.Points) - 1))
-
-					// 4. Define the standard deviation
-					standardDeviation := math.Sqrt(variance)
-
-					// 5. Define the the x1 and x2 value in which the points should be (sigma σ defines the range)
-					x1 := μ - algorithm.Sigma()*standardDeviation
-					x2 := μ + algorithm.Sigma()*standardDeviation
-
 					// Create a slice with the length (not capacity!) of the slice gpxSegment.Points  to store all points which belongs to MovingData based on standard deviation
 					gpxSegment.MovingData.Points = gpxSegment.Points[:0]                                      // https://github.com/golang/go/wiki/SliceTricks#filtering-without-allocating
 					gpxSegment.MovingData.Points = append(gpxSegment.MovingData.Points, gpxSegment.Points[0]) // Add the first point in the segment to the moving data since it's the starting point
 					previousGPXPoint := gpxSegment.Points[0]
 					gpxSegment.MovingData.MaxPace = 1000000 // ToDo: The initial vlaue is used for the if codition below (because MaxPace is basically the fastest (smallest) pace in min/km)
-					for index := 1; index < len(gpxSegment.Points); index++ {
-						previousGPXPoint = gpxSegment.Points[index-1]
-						gpxPoint := gpxSegment.Points[index]
-						if x1 <= gpxPoint.Point.Duration && gpxPoint.Point.Duration <= x2 {
-							gpxPoint.Point.SetPointData(previousGPXPoint.Point, algorithm)
 
-							gpxSegment.MovingData.MovingTime += gpxPoint.Point.Duration
-							gpxSegment.MovingData.MovingDistance += gpxPoint.Point.Distance
-							// Max Speed
-							if gpxPoint.Point.Speed > gpxSegment.MovingData.MaxSpeed {
-								gpxSegment.MovingData.MaxSpeed = gpxPoint.Point.Speed
-							}
-							// Max Pace
-							if gpxPoint.Point.Pace > 0.0 && gpxPoint.Point.Pace < gpxSegment.MovingData.MaxPace {
-								gpxSegment.MovingData.MaxPace = gpxPoint.Point.Pace
-							}
+					if algorithm.ShouldStandardDeviation() {
+						/**
+							STANDARD DEVIATION -- BEGIN
+						**/
 
-							// Add GPXPoint to gpxSegment.MovingData.Points
-							gpxSegment.MovingData.Points = append(gpxSegment.MovingData.Points, gpxPoint)
-						} else {
-							gpxSegment.MovingData.StoppedTime += gpxPoint.Point.Duration
-							gpxSegment.MovingData.StoppedDistance += gpxPoint.Point.Distance
+						// Standard deviation to have a baseline of points for the calculations
+						// 1. Define the mean mu (μ) for a population series: All summed values / count of values
+						μ := gpxSegment.Duration / float64(len(gpxSegment.Points)) // The mean mu (μ) for a population series
+
+						// 2.a) Define Deviation for each point: (x1−μ)
+						// 2.b) Square each deviation: (x1−μ)^2
+						// 2.c) Sum all squared deviation from each point
+						var squaredDeviationSum float64 // Sum of all squared deviation from each point
+						for index := 1; index < len(gpxSegment.Points); index++ {
+							point := gpxSegment.Points[index]
+							squaredDeviationSum += math.Pow(point.Duration-μ, 2)
 						}
 
+						// 3. Define the variance of the population: Divide the sum of all squared deviation of each points by the number of the population (in the previous step we used all point except the first one: len(seg.Points)-1)
+						variance := squaredDeviationSum / float64((len(gpxSegment.Points) - 1))
+
+						// 4. Define the standard deviation
+						standardDeviation := math.Sqrt(variance)
+
+						// 5. Define the the x1 and x2 value in which the points should be (sigma σ defines the range)
+						x1 := μ - algorithm.Sigma()*standardDeviation
+						x2 := μ + algorithm.Sigma()*standardDeviation
+
+						// Filter all points which belongs to the standard deviation area
+						for index := 1; index < len(gpxSegment.Points); index++ {
+							previousGPXPoint = gpxSegment.Points[index-1]
+							gpxPoint := gpxSegment.Points[index]
+							if x1 <= gpxPoint.Point.Duration && gpxPoint.Point.Duration <= x2 {
+								gpxPoint.Point.SetPointData(previousGPXPoint.Point, algorithm)
+
+								gpxSegment.MovingData.MovingTime += gpxPoint.Point.Duration
+								gpxSegment.MovingData.MovingDistance += gpxPoint.Point.Distance
+								// Max Speed
+								if gpxPoint.Point.Speed > gpxSegment.MovingData.MaxSpeed {
+									gpxSegment.MovingData.MaxSpeed = gpxPoint.Point.Speed
+								}
+								// Max Pace
+								if gpxPoint.Point.Pace > 0.0 && gpxPoint.Point.Pace < gpxSegment.MovingData.MaxPace {
+									gpxSegment.MovingData.MaxPace = gpxPoint.Point.Pace
+								}
+
+								// Add GPXPoint to gpxSegment.MovingData.Points
+								gpxSegment.MovingData.Points = append(gpxSegment.MovingData.Points, gpxPoint)
+							} else {
+								gpxSegment.MovingData.StoppedTime += gpxPoint.Point.Duration
+								gpxSegment.MovingData.StoppedDistance += gpxPoint.Point.Distance
+							}
+
+						}
+					} else {
+						/**
+							Do not use Standard Deviation - Begin
+						**/
+						for index := 1; index < len(gpxSegment.Points); index++ {
+							previousGPXPoint = gpxSegment.Points[index-1]
+							gpxPoint := gpxSegment.Points[index]
+
+							// Custom Moving Points
+							err := algorithm.CustomMovingPoints(&gpxPoint, &previousGPXPoint, algorithm)
+							if err != nil {
+								// Error says: Do not use the point for "Moving"Time and "MovingDistance"
+								gpxSegment.MovingData.StoppedTime += gpxPoint.Point.Duration
+								gpxSegment.MovingData.StoppedDistance += gpxPoint.Point.Distance
+							} else {
+								// ToDo: the gpxPoint Data should be set by algorithm.CustomMovingPoints
+
+								gpxSegment.MovingData.MovingTime += gpxPoint.Point.Duration
+								gpxSegment.MovingData.MovingDistance += gpxPoint.Point.Distance
+
+								// Max Speed
+								if gpxPoint.Point.Speed > gpxSegment.MovingData.MaxSpeed {
+									gpxSegment.MovingData.MaxSpeed = gpxPoint.Point.Speed
+								}
+								// Max Pace
+								if gpxPoint.Point.Pace > 0.0 && gpxPoint.Point.Pace < gpxSegment.MovingData.MaxPace {
+									gpxSegment.MovingData.MaxPace = gpxPoint.Point.Pace
+								}
+
+								// Add GPXPoint to gpxSegment.MovingData.Points
+								gpxSegment.MovingData.Points = append(gpxSegment.MovingData.Points, gpxPoint)
+							}
+
+							// // speed < 1 m/s
+							// if gpxPoint.Speed > 1.0 {
+							// 	gpxPoint.Point.SetPointData(previousGPXPoint.Point, algorithm)
+
+							// } else {
+							// 	gpxSegment.MovingData.StoppedTime += gpxPoint.Point.Duration
+							// 	gpxSegment.MovingData.StoppedDistance += gpxPoint.Point.Distance
+							// }
+
+						}
 					}
+
 					gpxSegment.MovingData.Duration += gpxSegment.MovingData.MovingTime + gpxSegment.MovingData.StoppedTime
 					gpxSegment.MovingData.Distance += gpxSegment.MovingData.MovingDistance + gpxSegment.MovingData.StoppedDistance
 

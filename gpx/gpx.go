@@ -26,6 +26,28 @@ func (opt *options) SetAlgorithm(algorithm geo.Algorithm) {
 }
 */
 
+type ChannelStruct struct {
+	GPX   *geo.GPX
+	Error error
+}
+
+func ParseFileChannel(fileName string, algorithm geo.Algorithm, c chan ChannelStruct) {
+	gpx, err := gxml.ParseFile(fileName, algorithm)
+	if err != nil {
+		channelStruct := ChannelStruct{
+			GPX:   nil,
+			Error: err,
+		}
+		c <- channelStruct
+	} else {
+		channelStruct := ChannelStruct{
+			GPX:   gpx,
+			Error: nil,
+		}
+		c <- channelStruct
+	}
+}
+
 //ParseFile parses a gpx file and returns a GPX object
 func ParseFile(fileName string, algorithm geo.Algorithm) (*geo.GPX, error) {
 	return gxml.ParseFile(fileName, algorithm)
