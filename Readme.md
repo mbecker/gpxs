@@ -140,13 +140,14 @@ Additionaly the new approach to use custom methods to normalize the data sete an
 | Segment Stopped Time     | 114h30m14s                     | 114h30m14s                     | 77h19m9s                       | 114h30m14s                     | 77h19m9s                       | 114h30m14s                     |
 | Segment Moving Distance  |                   10886.758060 |                   10886.758060 |                   11455.737927 |                   10880.014470 |                   11455.737927 |                   10880.014470 |
 | Segment Stopped Distance |                     657.105423 |                     657.105423 |                      80.932973 |                     656.656430 |                      80.932973 |                     656.656430 |
-|--------------------------|--------------------------------|--------------------------------|--------------------------------|--------------------------------|--------------------------------|--------------------------------|
-       EXECUTION TIME      |          21.1313353S           |          21.0792068S           |          17.2127292S           |          16.7774415S           |          17.1258418S           |           16.836786S
-|--------------------------|--------------------------------|--------------------------------|--------------------------------|--------------------------------|--------------------------------|--------------------------------|
-gpxs Benchmark - The execution with the Vincenty forula takes longer due to more caluclation steps
+| ------                   | ------                         | ------                         | ------                         | ------                         | ------                         | ------                         |
+| Execution time           | 21.5643535s                    | 20.8448645s                    | 16.9367893s                    | 17.0631317s                    | 17.0116919s                    | 16.5284669s                    |
+
+> gpxgo Benchmark - The execution with the Vincenty forula takes longer due to more caluclation steps
 
 ## gpxgo 
 > Simple distance calculation (length2D, length3D), normalization of poins with default speed threshold (1m/s)
+> Vincenty formula added by me
 
 |           TYPE           |   LENGTH2D   |   LENGTH3D   |   VINCENTY   |
 |--------------------------|--------------|--------------|--------------|
@@ -172,8 +173,7 @@ gpxs Benchmark - The execution with the Vincenty forula takes longer due to more
 | Segment Stopped Time     | 45h44m20s    | 45h44m20s    | 45h44m20s    |
 | Segment Moving Distance  | 11523.183462 | 11523.183462 | 11523.183462 |
 | Segment Stopped Distance |    16.449875 |    16.449875 |    16.449875 |
-|--------------------------|--------------|--------------|--------------|
-       EXECUTION TIME      | 18.1073554S  | 18.2335902S  | 25.0137132S
-|--------------------------|--------------|--------------|--------------|
-gpxs Benchmark - The execution with the Vincenty forula takes longer due
-to more caluclation steps
+| ------                   | ------       | ------       | ------       |
+| Execution time           | 17.9543938s  | 18.4098755s  | 25.3006466s  |
+
+> gpxgo Benchmark - The execution with the Vincenty forula takes longer due to more caluclation steps
