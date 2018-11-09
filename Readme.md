@@ -115,8 +115,7 @@ Additionaly the new approach to use custom methods to normalize the data sete an
 **gpxs**
 > Benchmark with different GPS distance calculation methods; different normalization methods (standard deviation vs. default speed threshold)
 
-|           TYPE           |     VINCENTY W/O STANDARD      |     VINCENTY WITH STANDARD     |
-|                          |           DEVIATION            |           DEVIATION            |
+|           TYPE           |     VINCENTY W/O SD            |     VINCENTY WITH SD           |
 |--------------------------|--------------------------------|--------------------------------|
 | # of files               |                           1047 |                           1047 |
 | ------                   | ------                         | ------                         |
