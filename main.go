@@ -9,13 +9,13 @@ import (
 	"time"
 
 	"github.com/mbecker/gpxs/geo"
-	"github.com/mbecker/gpxs/gpx"
+	"github.com/mbecker/gpxs/gpxs"
 )
 
 func readFiles() {
 	defer timeTrack(time.Now(), "readFiles")
 	vincenty := geo.Vincenty{
-		ShouldStandardDeviationBeUsed: false,
+		ShouldStandardDeviationBeUsed: true,
 		SigmaMultiplier:               1.644854, // ~95%
 		OneDegree:                     1000.0 * 10000.8 / 90.0,
 		EarthRadius:                   6378137, // WGS-84 ellipsoid; See https://en.wikipedia.org/wiki/World_Geodetic_System
@@ -68,7 +68,7 @@ func readFiles() {
 	)
 	for _, file := range files {
 		if file.IsDir() == false {
-			gpxDoc, err := gpx.ParseFile(filepath.Join(currentDirectory, "test", "gpx_all", file.Name()), &vincenty)
+			gpxDoc, err := gpxs.ParseFile(filepath.Join(currentDirectory, "test", "gpx_all", file.Name()), &vincenty)
 			if err != nil {
 				panic(err)
 			}
