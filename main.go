@@ -17,7 +17,7 @@ type AlgStruct struct {
 	Alg  geo.Algorithm
 }
 
-func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, tableData [][]string, tableFooter [][]string) {
+func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, tableData [][]string) {
 	start := time.Now()
 	var (
 		countFiles      int
@@ -121,11 +121,22 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 	tableData[19] = append(tableData[19], fmt.Sprintf("%s", t09))                           // Segment  Stopped Time
 	tableData[20] = append(tableData[20], fmt.Sprintf("%f", segmentMovingDistance/1000.0))  // Segment Moving Distance
 	tableData[21] = append(tableData[21], fmt.Sprintf("%f", segmentStoppedDistance/1000.0)) // Segment  Stopped Distance
-
-	tableFooter[0] = append(tableFooter[0], fmt.Sprintf("%s", elapsed))
+	tableData[22] = append(tableData[22], "------")
+	tableData[23] = append(tableData[23], fmt.Sprintf("%s", elapsed))
 }
 
 func main() {
+
+	vincentyWithoutStandardDeviation := geo.Vincenty{
+		ShouldStandardDeviationBeUsed: false,
+		SigmaMultiplier:               1.644854, // ~95%
+		OneDegree:                     1000.0 * 10000.8 / 90.0,
+		EarthRadius:                   6378137, // WGS-84 ellipsoid; See https://en.wikipedia.org/wiki/World_Geodetic_System
+		Flattening:                    1 / 298.257223563,
+		SemiMinorAxisB:                6356752.314245,
+		Epsilon:                       1e-12,
+		MaxIterations:                 200,
+	}
 
 	vincenty := geo.Vincenty{
 		ShouldStandardDeviationBeUsed: true,
@@ -138,58 +149,47 @@ func main() {
 		MaxIterations:                 200,
 	}
 
-	vincentyWithoutStandardDeviation := geo.Vincenty{
-		ShouldStandardDeviationBeUsed: true,
-		SigmaMultiplier:               1.644854, // ~95%
-		OneDegree:                     1000.0 * 10000.8 / 90.0,
-		EarthRadius:                   6378137, // WGS-84 ellipsoid; See https://en.wikipedia.org/wiki/World_Geodetic_System
-		Flattening:                    1 / 298.257223563,
-		SemiMinorAxisB:                6356752.314245,
-		Epsilon:                       1e-12,
-		MaxIterations:                 200,
-	}
+	// algorithmStandardLength2d := geo.AlgorithmStandard{
+	// 	ShouldStandardDeviationBeUsed: false,
+	// 	SigmaMultiplier:               1.644854, // ~95%
+	// 	ShouldHaversine:               false,
+	// 	OneDegree:                     1000.0 * 10000.8 / 90.0,
+	// 	EarthRadius:                   6378137,
+	// 	Should3D:                      false,
+	// }
 
-	algorithmStandardLength2d := geo.AlgorithmStandard{
-		ShouldStandardDeviationBeUsed: false,
-		SigmaMultiplier:               1.644854, // ~95%
-		ShouldHaversine:               true,
-		OneDegree:                     1000.0 * 10000.8 / 90.0,
-		EarthRadius:                   6378137,
-		Should3D:                      false,
-	}
+	// algorithmStandarLength2ddWithStandardDeviation := geo.AlgorithmStandard{
+	// 	ShouldStandardDeviationBeUsed: true,
+	// 	SigmaMultiplier:               1.644854, // ~95%
+	// 	ShouldHaversine:               false,
+	// 	OneDegree:                     1000.0 * 10000.8 / 90.0,
+	// 	EarthRadius:                   6378137,
+	// 	Should3D:                      false,
+	// }
 
-	algorithmStandarLength2ddWithStandardDeviation := geo.AlgorithmStandard{
-		ShouldStandardDeviationBeUsed: true,
-		SigmaMultiplier:               1.644854, // ~95%
-		ShouldHaversine:               true,
-		OneDegree:                     1000.0 * 10000.8 / 90.0,
-		EarthRadius:                   6378137,
-		Should3D:                      false,
-	}
+	// algorithmStandardLength3d := geo.AlgorithmStandard{
+	// 	ShouldStandardDeviationBeUsed: false,
+	// 	SigmaMultiplier:               1.644854, // ~95%
+	// 	ShouldHaversine:               false,
+	// 	OneDegree:                     1000.0 * 10000.8 / 90.0,
+	// 	EarthRadius:                   6378137,
+	// 	Should3D:                      true,
+	// }
 
-	algorithmStandardLength3d := geo.AlgorithmStandard{
-		ShouldStandardDeviationBeUsed: false,
-		SigmaMultiplier:               1.644854, // ~95%
-		ShouldHaversine:               true,
-		OneDegree:                     1000.0 * 10000.8 / 90.0,
-		EarthRadius:                   6378137,
-		Should3D:                      true,
-	}
-
-	algorithmStandarLength3ddWithStandardDeviation := geo.AlgorithmStandard{
-		ShouldStandardDeviationBeUsed: true,
-		SigmaMultiplier:               1.644854, // ~95%
-		ShouldHaversine:               true,
-		OneDegree:                     1000.0 * 10000.8 / 90.0,
-		EarthRadius:                   6378137,
-		Should3D:                      true,
-	}
+	// algorithmStandarLength3ddWithStandardDeviation := geo.AlgorithmStandard{
+	// 	ShouldStandardDeviationBeUsed: true,
+	// 	SigmaMultiplier:               1.644854, // ~95%
+	// 	ShouldHaversine:               false,
+	// 	OneDegree:                     1000.0 * 10000.8 / 90.0,
+	// 	EarthRadius:                   6378137,
+	// 	Should3D:                      true,
+	// }
 
 	currentDirectory, err := os.Getwd()
 	if err != nil {
 		panic(err)
 	}
-	fileDirectory := filepath.Join(currentDirectory, "test", "gpx_all")
+	fileDirectory := filepath.Join(currentDirectory, "test", "gpx_one")
 	files, err := ioutil.ReadDir(fileDirectory)
 	if err != nil {
 		panic(err)
@@ -204,28 +204,22 @@ func main() {
 			Name: "Vincenty with Standard Deviation",
 			Alg:  &vincenty,
 		},
-		AlgStruct{
-			Name: "Standard (length2D) W/o standard deviation",
-			Alg:  &algorithmStandardLength2d,
-		},
-		AlgStruct{
-			Name: "Standard (length2D) With standard deviation",
-			Alg:  &algorithmStandarLength2ddWithStandardDeviation,
-		},
-		AlgStruct{
-			Name: "Standard (length3D) W/o standard deviation",
-			Alg:  &algorithmStandardLength3d,
-		},
-		AlgStruct{
-			Name: "Standard (length3D) With standard deviation",
-			Alg:  &algorithmStandarLength3ddWithStandardDeviation,
-		},
-	}
-
-	tableFooter := [][]string{
-		[]string{
-			"Execution time",
-		},
+		// AlgStruct{
+		// 	Name: "Standard (length2D) W/o standard deviation",
+		// 	Alg:  &algorithmStandardLength2d,
+		// },
+		// AlgStruct{
+		// 	Name: "Standard (length2D) With standard deviation",
+		// 	Alg:  &algorithmStandarLength2ddWithStandardDeviation,
+		// },
+		// AlgStruct{
+		// 	Name: "Standard (length3D) W/o standard deviation",
+		// 	Alg:  &algorithmStandardLength3d,
+		// },
+		// AlgStruct{
+		// 	Name: "Standard (length3D) With standard deviation",
+		// 	Alg:  &algorithmStandarLength3ddWithStandardDeviation,
+		// },
 	}
 
 	tableData := [][]string{
@@ -295,17 +289,22 @@ func main() {
 		[]string{
 			"Segment Stopped Distance",
 		},
+		[]string{
+			"------",
+		},
+		[]string{
+			"Execution time",
+		},
 	}
 
 	for _, alg := range algorithms {
-		parseFiles(fileDirectory, files, alg.Alg, tableData, tableFooter)
+		parseFiles(fileDirectory, files, alg.Alg, tableData)
 	}
 
 	// readFiles()
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 	table.SetCenterSeparator("|")
-	table.SetCaption(true, "gpxs Benchmark - The execution with the Vincenty forula takes longer due to more caluclation steps")
 
 	var header []string
 	header = make([]string, 0)
@@ -314,7 +313,6 @@ func main() {
 		header = append(header, alg.Name)
 	}
 	table.SetHeader(header)
-	table.SetFooter(tableFooter[0])
 	table.AppendBulk(tableData)
 	table.Render() // Send output
 }
