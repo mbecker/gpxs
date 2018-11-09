@@ -42,7 +42,6 @@ func (v *Vincenty) CustomMovingPoints(gpxPoint *GPXPoint, previousGPXPoint *GPXP
 
 	// speed < 1 m/s
 	if gpxPoint.Speed < 1.0 {
-		fmt.Println("???")
 		return errors.New("Point Speed below threshold")
 	}
 	gpxPoint.Point.SetPointData(previousGPXPoint.Point, algorithm)
