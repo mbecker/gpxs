@@ -160,7 +160,10 @@ type GPX11Gpx struct {
 	Desc        string         `xml:"metadata>desc,omitempty"`
 	AuthorName  string         `xml:"metadata>author>name,omitempty"`
 	AuthorEmail *GPX11GpxEmail `xml:"metadata>author>email,omitempty"`
-	// TODO: There can be more than one link?
+	/**
+	 * TODO:
+	 * - [x] Can be me more tane one link for AuthorLink?
+	 */
 	AuthorLink *GPX00GpxLink       `xml:"metadata>author>link,omitempty"`
 	Copyright  *GPX11GpxCopyright  `xml:"metadata>copyright,omitempty"`
 	Link       *GPX00GpxLink       `xml:"metadata>link,omitempty"`
