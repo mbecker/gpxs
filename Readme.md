@@ -30,10 +30,55 @@ My assumption is that Strava does a quite good in analyzing gpx data and should 
 At first the point data like duration, distane between the previous and the actual point is caluclated. The the data is then aggregated to the next level as follows:
 
 ```
-Point(distance and duration previous and actual point)
-All Points(sum of distance and duration) -> Segment
-All segments(sum of distance and duration) -> Track
-All tracks(sum of distance and duration) -> Gpx
+1.) The Point data is parsed from the XML and additional parameters are calculated as defined the 'type Point struct':
+type Point struct {
+	Latitude  float64
+	Longitude float64
+	Elevation generic.NullableFloat64
+	Timestamp time.Time
+
+	Distance float64 // The distance (m) from the previos to this point
+	Duration float64 // The duration (sec) from the previos to this point
+	Speed    float64 // The speed (m/s) from the previous point to this point
+	Pace     float64 // The pace (m/s) from the previous point to this point
+}
+
+2.) The sum of all Points is used to define the Segment's data as defined in the 'type GPXTrackSegment struct' field 'MovingData':
+
+type GPXTrackSegment struct {
+	Points     []GPXPoint
+	MovingData MovingData
+}
+
+type MovingData struct {
+	Duration        float64
+	Distance        float64
+	MovingTime      float64
+	StoppedTime     float64
+	MovingDistance  float64
+	StoppedDistance float64
+	MaxSpeed        float64
+	AverageSpeed    float64
+	MaxPace         float64
+	AveragePace     float64
+	Points          []GPXPoint
+	NumberValues    int
+	SumAverageSpeed float64
+	SumAveragePace  float64
+}
+
+3.) The sum of all Segements is used to define the Track's data (see 2.)
+//GPXTrack implements a gpx track
+type GPXTrack struct {
+	Segments   []GPXTrackSegment
+	MovingData MovingData
+}
+
+4.) The sum of all Track is used to define GPX's data (see 2.)
+type GPX struct {
+	MovingData MovingData
+	Tracks    []GPXTrack
+}
 ```
 
 **Refactoring**
@@ -98,125 +143,152 @@ Additionaly the new approach to use custom methods to normalize the data sete an
 
 # ToDo
 
-- Test that GPX Distance - Sum of all Track Distance - Sum of all Tracks Segments Distance - Sm of all Tracks Segments MovingData Distance are equal
-- Test that GPX Duration - Sum of all Track Duration - Sum of all Tracks Segments Duration - Sm of all Tracks Segments MovingData Duration are equal
-- Write test files
-- Write benchmark fies
+- [ ]  Check that csv files are generated correctly
+- [ ]  Check what gpx.Routes and gpx.Waypoint are and how to use it in gpxs
+- [ ]  Test that GPX Duration - Sum of all Track Duration - Sum of all Tracks Segments Duration - Sm of all Tracks Segments MovingData Duration are equal
+- [ ] Write test files
+- [O] Test: Sum of all Track Distance - Sum of all Tracks Segments Distance - Sm of all Tracks Segments MovingData Distance are equal
+- [ ] Write benchmark fies
 
 # How to use / Examples
 
-1.) Buil-in geo.Algorithm
+1.) Built-in geo.Algorithm
 ```go
-// 1.) Use a built-in geo.Algorithm
-vincenty := geo.Vincenty{
-    ShouldStandardDeviationBeUsed: true,
-    SigmaMultiplier:               1.644854, // ~95%
-    OneDegree:                     1000.0 * 10000.8 / 90.0,
-    EarthRadius:                   6378137, // WGS-84 ellipsoid; See https://en.wikipedia.org/wiki/World_Geodetic_System
-    Flattening:                    1 / 298.257223563,
-    SemiMinorAxisB:                6356752.314245,
-    Epsilon:                       1e-12,
-    MaxIterations:                 200,
-}
+// examples/example1.go
 
-// 2.) Parse a gpx file with the geo.Algorithm
-gpxDoc, err := gpxs.ParseFile(filepath.Join(fileDirectory, "test.gpx"), &vincenty)
-if err != nil {
-    panic(err)
-}
+package examples
 
-var (
-    countFiles      int
-    distance        float64
-    duration        float64
-    movingDistance  float64
-    movingTime      float64
-    stoppedDistance float64
-    stoppedTime     float64
+import (
+	"fmt"
+	"path/filepath"
+	"time"
 
-    trackDistance        float64
-    trackDuration        float64
-    trackMovingDistance  float64
-    trackMovingTime      float64
-    trackStoppedDistance float64
-    trackStoppedTime     float64
-
-    segmentDistance        float64
-    segmentDuration        float64
-    segmentMovingDistance  float64
-    segmentMovingTime      float64
-    segmentStoppedDistance float64
-    segmentStoppedTime     float64
+	"github.com/mbecker/gpxs/geo"
+	"github.com/mbecker/gpxs/gpxs"
 )
 
-// GPX
-md := gpxDoc.MovingData
-distance += md.Distance
-duration += md.Duration
-movingDistance += md.MovingDistance
-movingTime += md.MovingTime
-stoppedDistance += md.StoppedDistance
-stoppedTime += md.StoppedTime
+func example1() {
+	// 1.) Use a built-in geo.Algorithm
+	vincenty := geo.Vincenty{
+		ShouldStandardDeviationBeUsed: true,
+		SigmaMultiplier:               1.644854, // ~95%
+		OneDegree:                     1000.0 * 10000.8 / 90.0,
+		EarthRadius:                   6378137, // WGS-84 ellipsoid; See https://en.wikipedia.org/wiki/World_Geodetic_System
+		Flattening:                    1 / 298.257223563,
+		SemiMinorAxisB:                6356752.314245,
+		Epsilon:                       1e-12,
+		MaxIterations:                 200,
+	}
 
-// Tracks
-for _, track := range gpxDoc.Tracks {
-    trackMd := track.MovingData
-    trackDistance += trackMd.Distance
-    trackDuration += trackMd.Duration
-    trackMovingDistance += trackMd.MovingDistance
-    trackMovingTime += trackMd.MovingTime
-    trackStoppedDistance += trackMd.StoppedDistance
-    trackStoppedTime += trackMd.StoppedTime
+	// 2.) Parse a gpx file with the geo.Algorithm
+	gpxDoc, err := gpxs.ParseFile(filepath.Join("fileDirectory", "test.gpx"), &vincenty)
+	if err != nil {
+		panic(err)
+	}
 
-    // Segments
-    for _, segment := range track.Segments {
-        segmentMd := segment.MovingData
-        segmentDistance += segmentMd.Distance
-        segmentDuration += segmentMd.Duration
-        segmentMovingDistance += segmentMd.MovingDistance
-        segmentMovingTime += segmentMd.MovingTime
-        segmentStoppedDistance += segmentMd.StoppedDistance
-        segmentStoppedTime += segmentMd.StoppedTime
-    }
+	var (
+		distance        float64
+		duration        float64
+		movingDistance  float64
+		movingTime      float64
+		stoppedDistance float64
+		stoppedTime     float64
+
+		trackDistance        float64
+		trackDuration        float64
+		trackMovingDistance  float64
+		trackMovingTime      float64
+		trackStoppedDistance float64
+		trackStoppedTime     float64
+
+		segmentDistance        float64
+		segmentDuration        float64
+		segmentMovingDistance  float64
+		segmentMovingTime      float64
+		segmentStoppedDistance float64
+		segmentStoppedTime     float64
+	)
+
+	// GPX
+	md := gpxDoc.MovingData
+	distance += md.Distance
+	duration += md.Duration
+	movingDistance += md.MovingDistance
+	movingTime += md.MovingTime
+	stoppedDistance += md.StoppedDistance
+	stoppedTime += md.StoppedTime
+
+	// Tracks
+	for _, track := range gpxDoc.Tracks {
+		trackMd := track.MovingData
+		trackDistance += trackMd.Distance
+		trackDuration += trackMd.Duration
+		trackMovingDistance += trackMd.MovingDistance
+		trackMovingTime += trackMd.MovingTime
+		trackStoppedDistance += trackMd.StoppedDistance
+		trackStoppedTime += trackMd.StoppedTime
+
+		// Segments
+		for _, segment := range track.Segments {
+			segmentMd := segment.MovingData
+			segmentDistance += segmentMd.Distance
+			segmentDuration += segmentMd.Duration
+			segmentMovingDistance += segmentMd.MovingDistance
+			segmentMovingTime += segmentMd.MovingTime
+			segmentStoppedDistance += segmentMd.StoppedDistance
+			segmentStoppedTime += segmentMd.StoppedTime
+		}
+	}
+
+	t01, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(duration)))
+	t02, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(movingTime)))
+	t03, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(stoppedTime)))
+
+	t04, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(trackDuration)))
+	t05, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(trackMovingTime)))
+	t06, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(trackStoppedTime)))
+
+	t07, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(segmentDuration)))
+	t08, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(segmentMovingTime)))
+	t09, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(segmentStoppedTime)))
+
+	fmt.Printf("------")
+	fmt.Printf("%s", t01)                    // GPX Duration
+	fmt.Printf("%f", distance/1000.0)        // GPX Distance
+	fmt.Printf("%s", t02)                    // GPX Moving Time)
+	fmt.Printf("%s", t03)                    // GPX Stopped Time
+	fmt.Printf("%f", movingDistance/1000.0)  // GPX Moving Distance
+	fmt.Printf("%f", stoppedDistance/1000.0) // GPX Stopped Distance
+	fmt.Printf("------")
+	fmt.Printf("%s", t04)                         // Track Duration
+	fmt.Printf("%f", trackDistance/1000.0)        // Track Moving Distance
+	fmt.Printf("%s", t05)                         // Track Moving Time
+	fmt.Printf("%s", t06)                         // Track Stopped Time
+	fmt.Printf("%f", trackMovingDistance/1000.0)  // Track Moving Distance
+	fmt.Printf("%f", trackStoppedDistance/1000.0) // Track Stopped Distance
+	fmt.Printf("------")
+	fmt.Printf("%s", t07)                           // Segment Duration
+	fmt.Printf("%f", segmentDistance/1000.0)        // Segment Distance
+	fmt.Printf("%s", t08)                           // Segment Moving Time
+	fmt.Printf("%s", t09)                           // Segment  Stopped Time
+	fmt.Printf("%f", segmentMovingDistance/1000.0)  // Segment Moving Distance
+	fmt.Printf("%f", segmentStoppedDistance/1000.0) // Segment  Stopped Distance
 }
-
-t01, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(duration)))
-t02, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(movingTime)))
-t03, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(stoppedTime)))
-
-t04, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(trackDuration)))
-t05, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(trackMovingTime)))
-t06, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(trackStoppedTime)))
-
-t07, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(segmentDuration)))
-t08, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(segmentMovingTime)))
-t09, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(segmentStoppedTime)))
-
-
-fmt.Printf("------")
-fmt.Printf("%s", t01)                    // GPX Duration
-fmt.Printf("%f", distance/1000.0)        // GPX Distance
-fmt.Printf("%s", t02)                    // GPX Moving Time)
-fmt.Printf("%s", t03)                    // GPX Stopped Time
-fmt.Printf("%f", movingDistance/1000.0)  // GPX Moving Distance
-fmt.Printf("%f", stoppedDistance/1000.0) // GPX Stopped Distance
-fmt.Printf("------")
-fmt.Printf("%s", t04)                           // Track Duration
-fmt.Printf("%f", trackDistance/1000.0)        // Track Moving Distance
-fmt.Printf("%s", t05)                         // Track Moving Time
-fmt.Printf("%s", t06)                         // Track Stopped Time
-fmt.Printf("%f", trackMovingDistance/1000.0)  // Track Moving Distance
-fmt.Printf("%f", trackStoppedDistance/1000.0) // Track Stopped Distance
-fmt.Printf("------")
-fmt.Printf("%s", t07)                           // Segment Duration
-fmt.Printf("%f", segmentDistance/1000.0)        // Segment Distance
-fmt.Printf("%s", t08)                           // Segment Moving Time
-fmt.Printf("%s", t09)                           // Segment  Stopped Time
-fmt.Printf("%f", segmentMovingDistance/1000.0)  // Segment Moving Distance
-fmt.Printf("%f", segmentStoppedDistance/1000.0) // Segment  Stopped Distance
 ```
 2.) Custom geo.Algorithm
 ```go
+// examples/example2.go
+
+package exmaples
+
+import (
+	"errors"
+	"path/filepath"
+
+	"github.com/mbecker/gpxs/geo"
+	"github.com/mbecker/gpxs/gpxs"
+)
+
 // 1.) Define customer geo.algorithm; must fullfill interface geo.Algorithm
 type CustomAlgorithm struct {
 	CustomParameter float64
@@ -267,19 +339,19 @@ func (c *CustomAlgorithm) Pace(distance float64, duration float64) (float64, err
 	return 20.9, nil
 }
 
-func main() {
+func example2() {
 
-    customAlgorithm := CustomAlgorithm{
-        CustomParameter: 100.9,
-    }
+	customAlgorithm := CustomAlgorithm{
+		CustomParameter: 100.9,
+	}
 
-    // 2.) Parse a gpx file with the custom geo.Algorithm
-    gpxDoc, err := gpxs.ParseFile(filepath.Join(fileDirectory, "test.gpx"), &customAlgorithm)
-    if err != nil {
-        panic(err)
-    }
+	// 2.) Parse a gpx file with the custom geo.Algorithm
+	gpxDoc, err := gpxs.ParseFile(filepath.Join("fileDirectory", "test.gpx"), &customAlgorithm)
+	if err != nil {
+		panic(err)
+	}
 
-    // 3.) See how to use gpxDoc in the first example
+	// 3.) See how to use gpxDoc in the first example
 
 }
 ```
