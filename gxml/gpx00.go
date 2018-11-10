@@ -49,7 +49,7 @@ type GPX00GpxRte struct {
 	Cmt     string   `xml:"cmt,omitempty"`
 	Desc    string   `xml:"desc,omitempty"`
 	Src     string   `xml:"src,omitempty"`
-	// TODO
+	// ToDo
 	//Links       []Link   `xml:"link"`
 	Number generic.NullableInt `xml:"number,omitempty"`
 	Type   string              `xml:"type,omitempty"`
@@ -63,7 +63,7 @@ type GPX00GpxTrk struct {
 	Cmt     string   `xml:"cmt,omitempty"`
 	Desc    string   `xml:"desc,omitempty"`
 	Src     string   `xml:"src,omitempty"`
-	// TODO
+	// ToDo
 	//Links    []Link   `xml:"link"`
 	Number   generic.NullableInt `xml:"number,omitempty"`
 	Type     string              `xml:"type,omitempty"`

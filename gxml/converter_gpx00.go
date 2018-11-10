@@ -259,7 +259,7 @@ func Set00GPX00DocRoutes(gpxDoc *geo.GPX, gpx00Rte []*GPX00GpxRte) {
 			r.Comment = route.Cmt
 			r.Description = route.Desc
 			r.Source = route.Src
-			// TODO
+			// ToDo
 			//r.Links = route.Links
 			if route.Number.Null() {
 				r.Number = routeNo
@@ -267,7 +267,7 @@ func Set00GPX00DocRoutes(gpxDoc *geo.GPX, gpx00Rte []*GPX00GpxRte) {
 				r.Number = route.Number.Value()
 			}
 			r.Type = route.Type
-			// TODO
+			// ToDo
 			//r.RoutePoints = route.RoutePoints
 
 			if route.Points != nil {
@@ -297,7 +297,7 @@ func convertPointFromGpx00(original *GPX00GpxPoint) *geo.GPXPoint {
 	result.Comment = original.Cmt
 	result.Description = original.Desc
 	result.Source = original.Src
-	// TODO
+	// ToDo
 	//w.Links = original.Links
 	result.Symbol = original.Sym
 	result.Type = original.Type
@@ -335,7 +335,7 @@ func convertPointToGpx00(original *geo.GPXPoint) *GPX00GpxPoint {
 	result.Cmt = original.Comment
 	result.Desc = original.Description
 	result.Src = original.Source
-	// TODO
+	// ToDo
 	//w.Links = original.Links
 	result.Sym = original.Symbol
 	result.Type = original.Type
