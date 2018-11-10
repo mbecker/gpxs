@@ -34,7 +34,7 @@ type GPX struct {
 
 	MovingData MovingData
 
-	// TODO
+	// TODO:
 	//Extensions []byte
 	Routes    []GPXRoute
 	Tracks    []GPXTrack
@@ -59,11 +59,11 @@ type GPXRoute struct {
 	Comment     string
 	Description string
 	Source      string
-	// TODO
+	// TODO:
 	//Links       []Link
 	Number int // generic.NullableInt
 	Type   string
-	// TODO
+	// TODO:
 	Points []GPXPoint
 }
 
@@ -74,7 +74,10 @@ type GPXTrack struct {
 	Description string
 	Source      string
 	Timestamp   *time.Time
-	// TODO
+	/**
+	 * TODO:
+	 * - [x] Should Links be included in tracks due to gpx specification?
+	 */
 	//Links    []Link
 	Number     int //generic.NullableInt
 	Type       string
@@ -101,7 +104,7 @@ type GPXTrackSegment struct {
 	Duration   float64
 	Distance   float64
 	Timestamp  *time.Time
-	// TODO extensions
+	// TODO: extensions
 }
 
 func (seg *GPXTrackSegment) String() string {
@@ -119,7 +122,7 @@ func (seg *GPXTrackSegment) String() string {
 //GPXPoint represents a point of the gpx file
 type GPXPoint struct {
 	Point
-	// TODO
+	// TODO:
 
 	// TODO: Type
 	MagneticVariation string
@@ -130,7 +133,7 @@ type GPXPoint struct {
 	Comment     string
 	Description string
 	Source      string
-	// TODO
+	// TODO:
 	// Links       []GpxLink
 	Symbol string
 	Type   string

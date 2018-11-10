@@ -141,7 +141,7 @@ Suprisingly the new aggregation is not so faster as I thought ("only" 2seconds);
 Additionaly the new approach to use custom methods to normalize the data sete and caluclate the information provides more flexibility.
 
 
-# TODO
+# TODO:
 
 - [ ]  Check that csv files are generated correctly
 - [ ]  Check what gpx.Routes and gpx.Waypoint are and how to use it in gpxs

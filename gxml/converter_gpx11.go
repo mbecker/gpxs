@@ -84,11 +84,11 @@ func convertToGpx11Models(gpxDoc *geo.GPX) *GPX11Gpx {
 			r.Cmt = route.Comment
 			r.Desc = route.Description
 			r.Src = route.Source
-			// TODO
+			// TODO:
 			//r.Links = route.Links
 			r.Number.SetValue(route.Number)
 			r.Type = route.Type
-			// TODO
+			// TODO:
 			//r.RoutePoints = route.RoutePoints
 
 			gpx11Doc.Routes[routeNo] = r
@@ -156,7 +156,7 @@ func convertFromGpx11Models(gpx11Doc *GPX11Gpx, algorithm geo.Algorithm) *geo.GP
 		gpxDoc.AuthorLinkType = gpx11Doc.AuthorLink.Type
 	}
 
-	/* TODO
+	/* TODO:
 	if gpx11Doc.Extensions != nil {
 		gpxDoc.Extensions = &gpx11Doc.Extensions.Bytes
 	}

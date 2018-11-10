@@ -38,7 +38,7 @@ func convertToGpx10Models(gpxDoc *geo.GPX) *GPX10Gpx {
 	gpx10Doc.Email = gpxDoc.AuthorEmail
 
 	if len(gpxDoc.AuthorLink) > 0 || len(gpxDoc.AuthorLinkText) > 0 {
-		// TODO
+		// TODO:
 	}
 
 	if len(gpxDoc.Link) > 0 || len(gpxDoc.LinkText) > 0 {
@@ -67,11 +67,11 @@ func convertToGpx10Models(gpxDoc *geo.GPX) *GPX10Gpx {
 			r.Cmt = route.Comment
 			r.Desc = route.Description
 			r.Src = route.Source
-			// TODO
+			// TODO:
 			//r.Links = route.Links
 			r.Number.SetValue(route.Number)
 			r.Type = route.Type
-			// TODO
+			// TODO:
 			//r.RoutePoints = route.RoutePoints
 
 			gpx10Doc.Routes[routeNo] = r
@@ -105,7 +105,7 @@ func convertToGpx10Models(gpxDoc *geo.GPX) *GPX10Gpx {
 						gpx10Segment.Points = make([]*GPX00GpxPoint, len(segment.Points))
 						for pointNo, point := range segment.Points {
 							gpx10Point := convertPointToGpx00(&point)
-							// TODO
+							// TODO:
 							//gpx10Point.Speed = point.Speed
 							//gpx10Point.Speed = point.Speed
 							gpx10Segment.Points[pointNo] = gpx10Point
