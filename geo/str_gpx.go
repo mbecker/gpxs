@@ -137,7 +137,7 @@ type GPXPoint struct {
 	// Links       []GpxLink
 	Symbol string
 	Type   string
-	// Accuracy info
+	// TODO: Accuracy info
 	TypeOfGpsFix       string
 	Satellites         generic.NullableInt
 	HorizontalDilution generic.NullableFloat64
