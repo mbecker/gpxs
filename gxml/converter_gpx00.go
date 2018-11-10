@@ -30,7 +30,7 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 		gpxTrack.Source = track.Src
 		gpxTrack.Timestamp = new(time.Time)
 
-		// ToDo: If track.Number is not given in the xml then assign the trackNo
+		// TODO: If track.Number is not given in the xml then assign the trackNo
 		if track.Number.Null() {
 			gpxTrack.Number = trackNo
 		} else {
@@ -80,7 +80,7 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 					gpxSegment.MovingData.Points = gpxSegment.Points[:0]                                      // https://github.com/golang/go/wiki/SliceTricks#filtering-without-allocating
 					gpxSegment.MovingData.Points = append(gpxSegment.MovingData.Points, gpxSegment.Points[0]) // Add the first point in the segment to the moving data since it's the starting point
 					previousGPXPoint := gpxSegment.Points[0]
-					gpxSegment.MovingData.MaxPace = 1000000 // ToDo: The initial vlaue is used for the if codition below (because MaxPace is basically the fastest (smallest) pace in min/km)
+					gpxSegment.MovingData.MaxPace = 1000000 // TODO: The initial vlaue is used for the if codition below (because MaxPace is basically the fastest (smallest) pace in min/km)
 
 					if algorithm.ShouldStandardDeviation() {
 						/**
@@ -151,7 +151,7 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 								gpxSegment.MovingData.StoppedTime += gpxPoint.Point.Duration
 								gpxSegment.MovingData.StoppedDistance += gpxPoint.Point.Distance
 							} else {
-								// ToDo: the gpxPoint Data should be set by algorithm.CustomMovingPoints
+								// TODO: the gpxPoint Data should be set by algorithm.CustomMovingPoints
 
 								gpxSegment.MovingData.MovingTime += gpxPoint.Point.Duration
 								gpxSegment.MovingData.MovingDistance += gpxPoint.Point.Distance
@@ -259,7 +259,7 @@ func Set00GPX00DocRoutes(gpxDoc *geo.GPX, gpx00Rte []*GPX00GpxRte) {
 			r.Comment = route.Cmt
 			r.Description = route.Desc
 			r.Source = route.Src
-			// ToDo
+			// TODO
 			//r.Links = route.Links
 			if route.Number.Null() {
 				r.Number = routeNo
@@ -267,7 +267,7 @@ func Set00GPX00DocRoutes(gpxDoc *geo.GPX, gpx00Rte []*GPX00GpxRte) {
 				r.Number = route.Number.Value()
 			}
 			r.Type = route.Type
-			// ToDo
+			// TODO
 			//r.RoutePoints = route.RoutePoints
 
 			if route.Points != nil {
@@ -297,7 +297,7 @@ func convertPointFromGpx00(original *GPX00GpxPoint) *geo.GPXPoint {
 	result.Comment = original.Cmt
 	result.Description = original.Desc
 	result.Source = original.Src
-	// ToDo
+	// TODO
 	//w.Links = original.Links
 	result.Symbol = original.Sym
 	result.Type = original.Type
@@ -335,7 +335,7 @@ func convertPointToGpx00(original *geo.GPXPoint) *GPX00GpxPoint {
 	result.Cmt = original.Comment
 	result.Desc = original.Description
 	result.Src = original.Source
-	// ToDo
+	// TODO
 	//w.Links = original.Links
 	result.Sym = original.Symbol
 	result.Type = original.Type

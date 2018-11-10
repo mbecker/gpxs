@@ -5,7 +5,7 @@ import (
 	gxml "github.com/mbecker/gpxs/gxml"
 )
 
-/* ToDo: Singleton - Does it make sense?
+/* TODO: Singleton - Does it make sense?
 type options struct {
 	algorithm geo.Algorithm
 }

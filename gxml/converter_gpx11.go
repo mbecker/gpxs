@@ -84,11 +84,11 @@ func convertToGpx11Models(gpxDoc *geo.GPX) *GPX11Gpx {
 			r.Cmt = route.Comment
 			r.Desc = route.Description
 			r.Src = route.Source
-			// ToDo
+			// TODO
 			//r.Links = route.Links
 			r.Number.SetValue(route.Number)
 			r.Type = route.Type
-			// ToDo
+			// TODO
 			//r.RoutePoints = route.RoutePoints
 
 			gpx11Doc.Routes[routeNo] = r
@@ -156,13 +156,13 @@ func convertFromGpx11Models(gpx11Doc *GPX11Gpx, algorithm geo.Algorithm) *geo.GP
 		gpxDoc.AuthorLinkType = gpx11Doc.AuthorLink.Type
 	}
 
-	/* ToDo
+	/* TODO
 	if gpx11Doc.Extensions != nil {
 		gpxDoc.Extensions = &gpx11Doc.Extensions.Bytes
 	}
 	*/
 
-	// ToDo: If no Time is given then use the first point's time
+	// TODO: If no Time is given then use the first point's time
 	if len(gpx11Doc.Timestamp) > 0 {
 		gpxDoc.Timestamp, _ = parseGPXTime(gpx11Doc.Timestamp)
 	} else {

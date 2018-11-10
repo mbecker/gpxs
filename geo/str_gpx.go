@@ -34,7 +34,7 @@ type GPX struct {
 
 	MovingData MovingData
 
-	// ToDo
+	// TODO
 	//Extensions []byte
 	Routes    []GPXRoute
 	Tracks    []GPXTrack
@@ -59,11 +59,11 @@ type GPXRoute struct {
 	Comment     string
 	Description string
 	Source      string
-	// ToDo
+	// TODO
 	//Links       []Link
 	Number int // generic.NullableInt
 	Type   string
-	// ToDo
+	// TODO
 	Points []GPXPoint
 }
 
@@ -74,7 +74,7 @@ type GPXTrack struct {
 	Description string
 	Source      string
 	Timestamp   *time.Time
-	// ToDo
+	// TODO
 	//Links    []Link
 	Number     int //generic.NullableInt
 	Type       string
@@ -101,7 +101,7 @@ type GPXTrackSegment struct {
 	Duration   float64
 	Distance   float64
 	Timestamp  *time.Time
-	// ToDo extensions
+	// TODO extensions
 }
 
 func (seg *GPXTrackSegment) String() string {
@@ -119,18 +119,18 @@ func (seg *GPXTrackSegment) String() string {
 //GPXPoint represents a point of the gpx file
 type GPXPoint struct {
 	Point
-	// ToDo
+	// TODO
 
-	// ToDo: Type
+	// TODO: Type
 	MagneticVariation string
-	// ToDo: Type
+	// TODO: Type
 	GeoidHeight string
 	// Description info
 	Name        string
 	Comment     string
 	Description string
 	Source      string
-	// ToDo
+	// TODO
 	// Links       []GpxLink
 	Symbol string
 	Type   string
