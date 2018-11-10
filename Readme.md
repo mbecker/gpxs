@@ -30,10 +30,55 @@ My assumption is that Strava does a quite good in analyzing gpx data and should 
 At first the point data like duration, distane between the previous and the actual point is caluclated. The the data is then aggregated to the next level as follows:
 
 ```
-Point(distance and duration previous and actual point)
-All Points(sum of distance and duration) -> Segment
-All segments(sum of distance and duration) -> Track
-All tracks(sum of distance and duration) -> Gpx
+1.) The Point data is parsed from the XML and additional parameters are calculated as defined the 'type Point struct':
+type Point struct {
+	Latitude  float64
+	Longitude float64
+	Elevation generic.NullableFloat64
+	Timestamp time.Time
+
+	Distance float64 // The distance (m) from the previos to this point
+	Duration float64 // The duration (sec) from the previos to this point
+	Speed    float64 // The speed (m/s) from the previous point to this point
+	Pace     float64 // The pace (m/s) from the previous point to this point
+}
+
+2.) The sum of all Points is used to define the Segment's data as defined in the 'type GPXTrackSegment struct' field 'MovingData':
+
+type GPXTrackSegment struct {
+	Points     []GPXPoint
+	MovingData MovingData
+}
+
+type MovingData struct {
+	Duration        float64
+	Distance        float64
+	MovingTime      float64
+	StoppedTime     float64
+	MovingDistance  float64
+	StoppedDistance float64
+	MaxSpeed        float64
+	AverageSpeed    float64
+	MaxPace         float64
+	AveragePace     float64
+	Points          []GPXPoint
+	NumberValues    int
+	SumAverageSpeed float64
+	SumAveragePace  float64
+}
+
+3.) The sum of all Segements is used to define the Track's data (see 2.)
+//GPXTrack implements a gpx track
+type GPXTrack struct {
+	Segments   []GPXTrackSegment
+	MovingData MovingData
+}
+
+4.) The sum of all Track is used to define GPX's data (see 2.)
+type GPX struct {
+	MovingData MovingData
+	Tracks    []GPXTrack
+}
 ```
 
 **Refactoring**
@@ -98,10 +143,12 @@ Additionaly the new approach to use custom methods to normalize the data sete an
 
 # ToDo
 
-- Test that GPX Distance - Sum of all Track Distance - Sum of all Tracks Segments Distance - Sm of all Tracks Segments MovingData Distance are equal
-- Test that GPX Duration - Sum of all Track Duration - Sum of all Tracks Segments Duration - Sm of all Tracks Segments MovingData Duration are equal
-- Write test files
-- Write benchmark fies
+- [ ]  Check that csv files are generated correctly
+- [ ]  Check what gpx.Routes and gpx.Waypoint are and how to use it in gpxs
+- [ ]  Test that GPX Duration - Sum of all Track Duration - Sum of all Tracks Segments Duration - Sm of all Tracks Segments MovingData Duration are equal
+- [ ] Write test files
+- [O] Test: Sum of all Track Distance - Sum of all Tracks Segments Distance - Sm of all Tracks Segments MovingData Distance are equal
+- [ ] Write benchmark fies
 
 # How to use / Examples
 
@@ -120,7 +167,7 @@ import (
 	"github.com/mbecker/gpxs/gpxs"
 )
 
-func main() {
+func example1() {
 	// 1.) Use a built-in geo.Algorithm
 	vincenty := geo.Vincenty{
 		ShouldStandardDeviationBeUsed: true,
@@ -292,7 +339,7 @@ func (c *CustomAlgorithm) Pace(distance float64, duration float64) (float64, err
 	return 20.9, nil
 }
 
-func main() {
+func example2() {
 
 	customAlgorithm := CustomAlgorithm{
 		CustomParameter: 100.9,
