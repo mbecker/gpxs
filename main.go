@@ -243,7 +243,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fileDirectory := filepath.Join(currentDirectory, "test", "gpx_one")
+	fileDirectory := filepath.Join(currentDirectory, "test", "gpx_files")
 	files, err := ioutil.ReadDir(fileDirectory)
 	if err != nil {
 		panic(err)
