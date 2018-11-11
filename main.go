@@ -255,11 +255,11 @@ func main() {
 			Alg:  &customAlgorithm,
 		},
 		AlgStruct{
-			Name: "Vincenty w/o Standard Deviation",
+			Name: "Vinc. Speed Threshold (w/o SD)",
 			Alg:  &vincentyWithoutStandardDeviation,
 		},
 		AlgStruct{
-			Name: "Vincenty with Standard Deviation",
+			Name: "Vinc. SD",
 			Alg:  &vincenty,
 		},
 		// AlgStruct{
