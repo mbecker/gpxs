@@ -17,7 +17,8 @@ type MovingData struct {
 	AverageSpeed    float64
 	MaxPace         float64
 	AveragePace     float64
-	Points          []GPXPoint
+	MovingPoints    []GPXPoint
+	StoppedPoints   []GPXPoint
 	NumberValues    int
 	SumAverageSpeed float64
 	SumAveragePace  float64

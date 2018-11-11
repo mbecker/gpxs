@@ -76,9 +76,12 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 						gpxSegment.Points[index] = gpxPoint
 					}
 
-					// Create a slice with the length (not capacity!) of the slice gpxSegment.Points  to store all points which belongs to MovingData based on standard deviation
-					gpxSegment.MovingData.Points = gpxSegment.Points[:0]                                      // https://github.com/golang/go/wiki/SliceTricks#filtering-without-allocating
-					gpxSegment.MovingData.Points = append(gpxSegment.MovingData.Points, gpxSegment.Points[0]) // Add the first point in the segment to the moving data since it's the starting point
+					// Create slices for Moving/StoppedPoints with the length (not capacity!) of the slice gpxSegment.Points  to store all points which belongs to MovingData based on standard deviation
+					gpxSegment.MovingData.MovingPoints = gpxSegment.Points[:0]                                            // https://github.com/golang/go/wiki/SliceTricks#filtering-without-allocating
+					gpxSegment.MovingData.MovingPoints = append(gpxSegment.MovingData.MovingPoints, gpxSegment.Points[0]) // Add the first point in the segment to the moving data since it's the starting point
+					gpxSegment.MovingData.StoppedPoints = gpxSegment.Points[:0]
+
+					// Set the previousGPXPoint to the actual point for the next loop
 					previousGPXPoint := gpxSegment.Points[0]
 					gpxSegment.MovingData.MaxPace = 1000000 // TODO: The initial vlaue is used for the if codition below (because MaxPace is basically the fastest (smallest) pace in min/km)
 
@@ -128,9 +131,12 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 									gpxSegment.MovingData.MaxPace = gpxPoint.Point.Pace
 								}
 
-								// Add GPXPoint to gpxSegment.MovingData.Points
-								gpxSegment.MovingData.Points = append(gpxSegment.MovingData.Points, gpxPoint)
+								// Add "Moving" GPXPoint to gpxSegment.MovingData.MovingPoints
+								gpxSegment.MovingData.MovingPoints = append(gpxSegment.MovingData.MovingPoints, gpxPoint)
 							} else {
+								// Add "stopped" GPXPoint to gpxSegment.MovingData.MovingPoints
+								gpxSegment.MovingData.StoppedPoints = append(gpxSegment.MovingData.StoppedPoints, gpxPoint)
+
 								gpxSegment.MovingData.StoppedTime += gpxPoint.Point.Duration
 								gpxSegment.MovingData.StoppedDistance += gpxPoint.Point.Distance
 							}
@@ -148,6 +154,10 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 							err := algorithm.CustomMovingPoints(&gpxPoint, &previousGPXPoint, algorithm)
 							if err != nil {
 								// Error says: Do not use the point for "Moving"Time and "MovingDistance"
+
+								// Add "Stopped" GPXPoint to gpxSegment.MovingData.StoppedPoints
+								gpxSegment.MovingData.StoppedPoints = append(gpxSegment.MovingData.StoppedPoints, gpxPoint)
+
 								gpxSegment.MovingData.StoppedTime += gpxPoint.Point.Duration
 								gpxSegment.MovingData.StoppedDistance += gpxPoint.Point.Distance
 							} else {
@@ -165,8 +175,8 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 									gpxSegment.MovingData.MaxPace = gpxPoint.Point.Pace
 								}
 
-								// Add GPXPoint to gpxSegment.MovingData.Points
-								gpxSegment.MovingData.Points = append(gpxSegment.MovingData.Points, gpxPoint)
+								// Add "Moving" GPXPoint to gpxSegment.MovingData.MovingPoints
+								gpxSegment.MovingData.MovingPoints = append(gpxSegment.MovingData.MovingPoints, gpxPoint)
 							}
 
 							// // speed < 1 m/s
