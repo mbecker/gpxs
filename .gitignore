@@ -17,3 +17,6 @@ vendor
 # Test files
 test/gpx_all
 test/gpx_one
+
+#Visual Studio Code
+.vscode
