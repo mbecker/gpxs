@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -28,6 +27,8 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 		movingTime      float64
 		stoppedDistance float64
 		stoppedTime     float64
+		startTime       *time.Time
+		endTime         *time.Time
 
 		trackDistance        float64
 		trackDuration        float64
@@ -35,6 +36,8 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 		trackMovingTime      float64
 		trackStoppedDistance float64
 		trackStoppedTime     float64
+		trackStartTime       *time.Time
+		trackEndTime         *time.Time
 
 		segmentDistance        float64
 		segmentDuration        float64
@@ -42,6 +45,8 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 		segmentMovingTime      float64
 		segmentStoppedDistance float64
 		segmentStoppedTime     float64
+		segmentStartTime       *time.Time
+		segmentEndTime         *time.Time
 	)
 
 	for _, file := range files {
@@ -60,6 +65,8 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 			movingTime += gpxDoc.MovementStats.MovingData.Duration
 			stoppedDistance += gpxDoc.MovementStats.StoppedData.Distance
 			stoppedTime += gpxDoc.MovementStats.StoppedData.Duration
+			startTime = gpxDoc.MovementStats.OverallData.StartTime.Time
+			endTime = gpxDoc.MovementStats.OverallData.EndTime.Time
 
 			// Tracks
 			for _, track := range gpxDoc.Tracks {
@@ -70,6 +77,8 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 				trackMovingTime += track.MovementStats.MovingData.Duration
 				trackStoppedDistance += track.MovementStats.StoppedData.Distance
 				trackStoppedTime += track.MovementStats.StoppedData.Duration
+				trackStartTime = track.MovementStats.OverallData.StartTime.Time
+				trackEndTime = track.MovementStats.OverallData.EndTime.Time
 
 				// Segments
 				for _, segment := range track.Segments {
@@ -80,6 +89,8 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 					segmentMovingTime += segment.MovementStats.MovingData.Duration
 					segmentStoppedDistance += segment.MovementStats.StoppedData.Distance
 					segmentStoppedTime += segment.MovementStats.StoppedData.Duration
+					segmentStartTime = segment.MovementStats.OverallData.StartTime.Time
+					segmentEndTime = segment.MovementStats.OverallData.EndTime.Time
 				}
 			}
 
@@ -108,76 +119,31 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 	tableData[5] = append(tableData[5], fmt.Sprintf("%s", t03))                    // GPX Stopped Time
 	tableData[6] = append(tableData[6], fmt.Sprintf("%f", movingDistance/1000.0))  // GPX Moving Distance
 	tableData[7] = append(tableData[7], fmt.Sprintf("%f", stoppedDistance/1000.0)) // GPX Stopped Distance
-	tableData[8] = append(tableData[8], "------")
-	tableData[9] = append(tableData[9], fmt.Sprintf("%s", t04))                           // Track Duration
-	tableData[10] = append(tableData[10], fmt.Sprintf("%f", trackDistance/1000.0))        // Track Moving Distance
-	tableData[11] = append(tableData[11], fmt.Sprintf("%s", t05))                         // Track Moving Time
-	tableData[12] = append(tableData[12], fmt.Sprintf("%s", t06))                         // Track Stopped Time
-	tableData[13] = append(tableData[13], fmt.Sprintf("%f", trackMovingDistance/1000.0))  // Track Moving Distance
-	tableData[14] = append(tableData[14], fmt.Sprintf("%f", trackStoppedDistance/1000.0)) // Track Stopped Distance
-	tableData[15] = append(tableData[15], "------")
-	tableData[16] = append(tableData[16], fmt.Sprintf("%s", t07))                           // Segment Duration
-	tableData[17] = append(tableData[17], fmt.Sprintf("%f", segmentDistance/1000.0))        // Segment Distance
-	tableData[18] = append(tableData[18], fmt.Sprintf("%s", t08))                           // Segment Moving Time
-	tableData[19] = append(tableData[19], fmt.Sprintf("%s", t09))                           // Segment  Stopped Time
-	tableData[20] = append(tableData[20], fmt.Sprintf("%f", segmentMovingDistance/1000.0))  // Segment Moving Distance
-	tableData[21] = append(tableData[21], fmt.Sprintf("%f", segmentStoppedDistance/1000.0)) // Segment  Stopped Distance
-	tableData[22] = append(tableData[22], "------")
-	tableData[23] = append(tableData[23], fmt.Sprintf("%s", elapsed))
+	tableData[8] = append(tableData[8], fmt.Sprintf("%v", startTime))              // GPX Start Time
+	tableData[9] = append(tableData[9], fmt.Sprintf("%v", endTime))                // GPX Start Time
+	tableData[10] = append(tableData[10], "------")
+	tableData[11] = append(tableData[11], fmt.Sprintf("%s", t04))                         // Track Duration
+	tableData[12] = append(tableData[12], fmt.Sprintf("%f", trackDistance/1000.0))        // Track Moving Distance
+	tableData[13] = append(tableData[13], fmt.Sprintf("%s", t05))                         // Track Moving Time
+	tableData[14] = append(tableData[14], fmt.Sprintf("%s", t06))                         // Track Stopped Time
+	tableData[15] = append(tableData[15], fmt.Sprintf("%f", trackMovingDistance/1000.0))  // Track Moving Distance
+	tableData[16] = append(tableData[16], fmt.Sprintf("%f", trackStoppedDistance/1000.0)) // Track Stopped Distance
+	tableData[17] = append(tableData[17], fmt.Sprintf("%v", trackStartTime))              // Track Start Time
+	tableData[18] = append(tableData[18], fmt.Sprintf("%v", trackEndTime))                // Track Start Time
+	tableData[19] = append(tableData[19], "------")
+	tableData[20] = append(tableData[20], fmt.Sprintf("%s", t07))                           // Segment Duration
+	tableData[21] = append(tableData[21], fmt.Sprintf("%f", segmentDistance/1000.0))        // Segment Distance
+	tableData[22] = append(tableData[22], fmt.Sprintf("%s", t08))                           // Segment Moving Time
+	tableData[23] = append(tableData[23], fmt.Sprintf("%s", t09))                           // Segment  Stopped Time
+	tableData[24] = append(tableData[24], fmt.Sprintf("%f", segmentMovingDistance/1000.0))  // Segment Moving Distance
+	tableData[25] = append(tableData[25], fmt.Sprintf("%f", segmentStoppedDistance/1000.0)) // Segment  Stopped Distance
+	tableData[26] = append(tableData[26], fmt.Sprintf("%v", segmentStartTime))              // Track Start Time
+	tableData[27] = append(tableData[27], fmt.Sprintf("%v", segmentEndTime))                // Track Start Time
+	tableData[28] = append(tableData[28], "------")
+	tableData[29] = append(tableData[29], fmt.Sprintf("%s", elapsed))
 
 }
 
-type CustomAlgorithm struct {
-	CustomParameter float64
-}
-
-// ShouldStandardDeviation (CustomAlgorithm) returns if the standard deviation should be used or not
-func (c *CustomAlgorithm) ShouldStandardDeviation() bool {
-	return false
-}
-
-// Sigma (CustomAlgorithm) returns the sigma for the standard deviation; not used because of 'ShouldStandardDeviation' returns 'false'
-func (c *CustomAlgorithm) Sigma() float64 {
-	return 0
-}
-
-// Duration (CustomAlgorithm) returns the time.Duration from point p1 to previousPoint in sec
-func (c *CustomAlgorithm) Duration(p1 *geo.Point, previousPoint *geo.Point) (float64, error) {
-	if previousPoint.Timestamp.Valid && p1.Timestamp.Valid {
-		return p1.Timestamp.Time.Sub(*previousPoint.Timestamp.Time).Seconds(), nil
-	}
-	return 0, errors.New("Point or Previous Point does not have a timestamp")
-}
-
-// CustomMovingPoints (CustomAlgorithm) defines which points should be used for "Moving"Time/Distance and if the it's set the new gpxPoint.Point Data
-func (c *CustomAlgorithm) CustomMovingPoints(gpxPoint *geo.GPXPoint, previousGPXPoint *geo.GPXPoint, algorithm geo.Algorithm) error {
-
-	/* 	Define which points should be used; if a point should be used for calculation then set it's new values like Duration, Distance, Speed, etc.
-	Here we use the set the new value for the points which used for "Moving"Time/Distanc
-	*/
-
-	// speed < 100 m/s
-	if gpxPoint.Speed < 100.0 {
-		return errors.New("Point Speed below threshold")
-	}
-	gpxPoint.Point.SetPointData(&previousGPXPoint.Point, algorithm)
-	return nil
-}
-
-// Distance (CustomAlgorithm) returns just 100 as an example
-func (c *CustomAlgorithm) Distance(p1 *geo.Point, previousPoint *geo.Point) (float64, error) {
-	return 101, nil
-}
-
-// Speed (CustomAlgorithm) returns the speed in m/s
-func (c *CustomAlgorithm) Speed(distance float64, duration float64) (float64, error) {
-	return 101.9, nil
-}
-
-// Pace (CustomAlgorithm) returns the pace in s/m
-func (c *CustomAlgorithm) Pace(distance float64, duration float64) (float64, error) {
-	return 20.9, nil
-}
 func main() {
 
 	// customAlgorithm := CustomAlgorithm{
@@ -309,6 +275,12 @@ func main() {
 			"GPX Stopped Distance",
 		},
 		[]string{
+			"GPX Start Time",
+		},
+		[]string{
+			"GPX End Time",
+		},
+		[]string{
 			"------",
 		},
 		[]string{
@@ -330,6 +302,12 @@ func main() {
 			"Track Stopped Distance",
 		},
 		[]string{
+			"Track Start Time",
+		},
+		[]string{
+			"Track End Time",
+		},
+		[]string{
 			"------",
 		},
 		[]string{
@@ -349,6 +327,12 @@ func main() {
 		},
 		[]string{
 			"Segment Stopped Distance",
+		},
+		[]string{
+			"Segment Start Time",
+		},
+		[]string{
+			"Segment End Time",
 		},
 		[]string{
 			"------",
