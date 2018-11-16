@@ -39,7 +39,7 @@ type GPX00GpxPoint struct {
 	Vdop          *float64 `xml:"vdop,omitempty"`
 	Pdop          *float64 `xml:"pdop,omitempty"`
 	AgeOfDGpsData *float64 `xml:"ageofdgpsdata,omitempty"`
-	DGpsId        *int     `xml:"dgpsid,omitempty"`
+	DGpsID        *int     `xml:"dgpsid,omitempty"`
 }
 
 //GPX00GpxRte struct fields for a route

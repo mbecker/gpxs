@@ -23,8 +23,8 @@ func convertToGpx10Models(gpxDoc *geo.GPX) *GPX10Gpx {
 
 	//gpx10Doc.XMLNs = gpxDoc.XMLNs
 	gpx10Doc.XMLNs = "http://www.topografix.com/GPX/1/0"
-	gpx10Doc.XmlNsXsi = gpxDoc.XmlNsXsi
-	gpx10Doc.XmlSchemaLoc = gpxDoc.XmlSchemaLoc
+	gpx10Doc.XMLNsXsi = gpxDoc.XMLNsXsi
+	gpx10Doc.XMLSchemaLoc = gpxDoc.XMLSchemaLoc
 
 	gpx10Doc.Version = "1.0"
 	if len(gpxDoc.Creator) == 0 {
@@ -125,8 +125,8 @@ func convertFromGpx10Models(gpx10Doc *GPX10Gpx, algorithm geo.Algorithm) *geo.GP
 	gpxDoc := new(geo.GPX)
 
 	gpxDoc.XMLNs = gpx10Doc.XMLNs
-	gpxDoc.XmlNsXsi = gpx10Doc.XmlNsXsi
-	gpxDoc.XmlSchemaLoc = gpx10Doc.XmlSchemaLoc
+	gpxDoc.XMLNsXsi = gpx10Doc.XMLNsXsi
+	gpxDoc.XMLSchemaLoc = gpx10Doc.XMLSchemaLoc
 
 	gpxDoc.Creator = gpx10Doc.Creator
 	gpxDoc.Version = gpx10Doc.Version

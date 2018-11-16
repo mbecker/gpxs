@@ -53,33 +53,33 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 			}
 
 			// GPX
-			md := gpxDoc.MovingData
+			md := gpxDoc.MovementStats.OverallData
 			distance += md.Distance
 			duration += md.Duration
-			movingDistance += md.MovingDistance
-			movingTime += md.MovingTime
-			stoppedDistance += md.StoppedDistance
-			stoppedTime += md.StoppedTime
+			movingDistance += gpxDoc.MovementStats.MovingData.Distance
+			movingTime += gpxDoc.MovementStats.MovingData.Duration
+			stoppedDistance += gpxDoc.MovementStats.StoppedData.Distance
+			stoppedTime += gpxDoc.MovementStats.StoppedData.Duration
 
 			// Tracks
 			for _, track := range gpxDoc.Tracks {
-				trackMd := track.MovingData
+				trackMd := track.MovementStats.OverallData
 				trackDistance += trackMd.Distance
 				trackDuration += trackMd.Duration
-				trackMovingDistance += trackMd.MovingDistance
-				trackMovingTime += trackMd.MovingTime
-				trackStoppedDistance += trackMd.StoppedDistance
-				trackStoppedTime += trackMd.StoppedTime
+				trackMovingDistance += track.MovementStats.MovingData.Distance
+				trackMovingTime += track.MovementStats.MovingData.Duration
+				trackStoppedDistance += track.MovementStats.StoppedData.Distance
+				trackStoppedTime += track.MovementStats.StoppedData.Duration
 
 				// Segments
 				for _, segment := range track.Segments {
-					segmentMd := segment.MovingData
+					segmentMd := segment.MovementStats.OverallData
 					segmentDistance += segmentMd.Distance
 					segmentDuration += segmentMd.Duration
-					segmentMovingDistance += segmentMd.MovingDistance
-					segmentMovingTime += segmentMd.MovingTime
-					segmentStoppedDistance += segmentMd.StoppedDistance
-					segmentStoppedTime += segmentMd.StoppedTime
+					segmentMovingDistance += segment.MovementStats.MovingData.Distance
+					segmentMovingTime += segment.MovementStats.MovingData.Duration
+					segmentStoppedDistance += segment.MovementStats.StoppedData.Distance
+					segmentStoppedTime += segment.MovementStats.StoppedData.Duration
 				}
 			}
 
@@ -143,7 +143,10 @@ func (c *CustomAlgorithm) Sigma() float64 {
 
 // Duration (CustomAlgorithm) returns the time.Duration from point p1 to previousPoint in sec
 func (c *CustomAlgorithm) Duration(p1 *geo.Point, previousPoint *geo.Point) (float64, error) {
-	return p1.Timestamp.Sub(previousPoint.Timestamp).Seconds(), nil
+	if previousPoint.Timestamp.Valid && p1.Timestamp.Valid {
+		return p1.Timestamp.Time.Sub(*previousPoint.Timestamp.Time).Seconds(), nil
+	}
+	return 0, errors.New("Point or Previous Point does not have a timestamp")
 }
 
 // CustomMovingPoints (CustomAlgorithm) defines which points should be used for "Moving"Time/Distance and if the it's set the new gpxPoint.Point Data
@@ -157,7 +160,7 @@ func (c *CustomAlgorithm) CustomMovingPoints(gpxPoint *geo.GPXPoint, previousGPX
 	if gpxPoint.Speed < 100.0 {
 		return errors.New("Point Speed below threshold")
 	}
-	gpxPoint.Point.SetPointData(previousGPXPoint.Point, algorithm)
+	gpxPoint.Point.SetPointData(&previousGPXPoint.Point, algorithm)
 	return nil
 }
 
@@ -177,9 +180,9 @@ func (c *CustomAlgorithm) Pace(distance float64, duration float64) (float64, err
 }
 func main() {
 
-	customAlgorithm := CustomAlgorithm{
-		CustomParameter: 100.9,
-	}
+	// customAlgorithm := CustomAlgorithm{
+	// 	CustomParameter: 100.9,
+	// }
 
 	vincentyWithoutStandardDeviation := geo.Vincenty{
 		ShouldStandardDeviationBeUsed: false,
@@ -250,16 +253,16 @@ func main() {
 	}
 
 	algorithms := []AlgStruct{
+		// AlgStruct{
+		// 	Name: "Custom",
+		// 	Alg:  &customAlgorithm,
+		// },
 		AlgStruct{
-			Name: "Custom",
-			Alg:  &customAlgorithm,
-		},
-		AlgStruct{
-			Name: "Vincenty w/o Standard Deviation",
+			Name: "Vinc. Speed Threshold (w/o SD)",
 			Alg:  &vincentyWithoutStandardDeviation,
 		},
 		AlgStruct{
-			Name: "Vincenty with Standard Deviation",
+			Name: "Vinc. SD",
 			Alg:  &vincenty,
 		},
 		// AlgStruct{

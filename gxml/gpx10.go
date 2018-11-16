@@ -117,8 +117,8 @@ gpx
 type GPX10Gpx struct {
 	XMLName      xml.Name `xml:"gpx"`
 	XMLNs        string   `xml:"xmlns,attr,omitempty"`
-	XmlNsXsi     string   `xml:"xmlns:xsi,attr,omitempty"`
-	XmlSchemaLoc string   `xml:"xsi:schemaLocation,attr,omitempty"`
+	XMLNsXsi     string   `xml:"xmlns:xsi,attr,omitempty"`
+	XMLSchemaLoc string   `xml:"xsi:schemaLocation,attr,omitempty"`
 
 	Version   string           `xml:"version,attr"`
 	Creator   string           `xml:"creator,attr"`

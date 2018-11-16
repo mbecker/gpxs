@@ -1,8 +1,6 @@
 package geo
 
 import (
-	"time"
-
 	"github.com/mbecker/gpxs/generic"
 )
 
@@ -11,7 +9,7 @@ type Point struct {
 	Latitude  float64
 	Longitude float64
 	Elevation generic.NullableFloat64
-	Timestamp time.Time
+	Timestamp NullTime
 
 	Distance float64 // The distance (m) from the previos to this point
 	Duration float64 // The duration (sec) from the previos to this point
@@ -40,16 +38,18 @@ func (pt *Point) GetElevation() generic.NullableFloat64 {
 // }
 
 // SetPointData sets the the point data for duration, distance, speed, pace
-func (pt *Point) SetPointData(prevPoint Point, algorithm Algorithm) {
+func (pt *Point) SetPointData(prevPoint *Point, algorithm Algorithm) {
 	// Duration (sec)
-	duration, errDuration := algorithm.Duration(pt, &prevPoint)
+	duration, errDuration := algorithm.Duration(*pt, *prevPoint)
 	if errDuration != nil {
+		// fmt.Println(errDuration)
+		// fmt.Println("???")
 		duration = 0
 	}
 	pt.Duration = duration
 
 	// Distance (m)
-	distance, errDistance := algorithm.Distance(pt, &prevPoint)
+	distance, errDistance := algorithm.Distance(pt, prevPoint)
 	if errDistance != nil {
 		distance = 0
 	}

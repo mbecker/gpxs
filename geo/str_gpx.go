@@ -11,8 +11,8 @@ import (
 //from a gpx file
 type GPX struct {
 	XMLNs        string
-	XmlNsXsi     string
-	XmlSchemaLoc string
+	XMLNsXsi     string
+	XMLSchemaLoc string
 
 	Version          string
 	Creator          string
@@ -32,13 +32,18 @@ type GPX struct {
 	Timestamp        *time.Time
 	Keywords         string
 
-	MovingData MovingData
+	MovementStats MovementStats
 
 	// TODO:
 	//Extensions []byte
 	Routes    []GPXRoute
 	Tracks    []GPXTrack
 	Waypoints []GPXPoint
+	/**
+	 * TODO:
+	 * - [x] add type in converter
+	 */
+	Type string
 }
 
 func (gpx *GPX) String() string {
@@ -48,7 +53,7 @@ func (gpx *GPX) String() string {
 	result += fmt.Sprintf("Name: %s\n", gpx.Name)
 	result += fmt.Sprintf("Creator: %s\n", gpx.Creator)
 	result += fmt.Sprintf("Time: %s\n", gpx.Timestamp)
-	result += gpx.MovingData.String("--->")
+	result += gpx.MovementStats.String()
 	result += fmt.Sprintf("------\n")
 	return result
 }
@@ -73,48 +78,42 @@ type GPXTrack struct {
 	Comment     string
 	Description string
 	Source      string
-	Timestamp   *time.Time
 	/**
 	 * TODO:
 	 * - [x] Should Links be included in tracks due to gpx specification?
 	 */
 	//Links    []Link
-	Number     int //generic.NullableInt
-	Type       string
-	Segments   []GPXTrackSegment
-	MovingData MovingData
+	Number        int //generic.NullableInt
+	Type          string
+	Segments      []GPXTrackSegment
+	MovementStats MovementStats
 }
 
 func (track *GPXTrack) String() string {
+	/**
+	 * TODO:
+	 * - [x] Updae string method (timestampd ws removed)
+	 */
 	var result string
 	result = fmt.Sprintf("--- Track ---\n")
 	result += fmt.Sprintf("Name: %s\n", track.Name)
 	result += fmt.Sprintf("Number: %v\n", track.Number)
-	result += fmt.Sprintf("Time: %s\n", track.Timestamp)
-	result += fmt.Sprintf("Segments #: %d\n", len(track.Segments))
-	result += track.MovingData.String("::::")
+	result += track.MovementStats.String()
 	result += fmt.Sprintf("------\n")
 	return result
 }
 
 //GPXTrackSegment represents a segment of a track
 type GPXTrackSegment struct {
-	Points     []GPXPoint
-	MovingData MovingData
-	Duration   float64
-	Distance   float64
-	Timestamp  *time.Time
-	// TODO: extensions
+	Points        []GPXPoint
+	MovementStats MovementStats
 }
 
 func (seg *GPXTrackSegment) String() string {
-	t01, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(seg.Duration)))
 
 	var result string
 	result = fmt.Sprintf("--- GPXTrackSegment ---\n")
-	result += fmt.Sprintf("Time: %s\n", seg.Timestamp)
-	result += fmt.Sprintf("Duration Time: %s\n", t01)
-	result += fmt.Sprintf("Distance: %f km\n", seg.Distance/1000.0)
+	result += seg.MovementStats.String()
 	result += fmt.Sprintf("------\n")
 	return result
 }
@@ -144,7 +143,7 @@ type GPXPoint struct {
 	VerticalDilution   generic.NullableFloat64
 	PositionalDilution generic.NullableFloat64
 	AgeOfDGpsData      generic.NullableFloat64
-	DGpsId             generic.NullableInt
+	DGpsID             generic.NullableInt
 }
 
 //GpxBounds contains min/max latitude and longitude

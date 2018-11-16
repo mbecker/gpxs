@@ -151,8 +151,8 @@ gpx (gpxType)
 type GPX11Gpx struct {
 	XMLName      xml.Name `xml:"gpx"`
 	XMLNs        string   `xml:"xmlns,attr,omitempty"`
-	XmlNsXsi     string   `xml:"xmlns:xsi,attr,omitempty"`
-	XmlSchemaLoc string   `xml:"xsi:schemaLocation,attr,omitempty"`
+	XMLNsXsi     string   `xml:"xmlns:xsi,attr,omitempty"`
+	XMLSchemaLoc string   `xml:"xsi:schemaLocation,attr,omitempty"`
 
 	Version     string         `xml:"version,attr"`
 	Creator     string         `xml:"creator,attr"`
@@ -244,5 +244,5 @@ type GPX11GpxExtensions struct {
 // 	Vdop          *float64 `xml:"vdop,omitempty"`
 // 	Pdop          *float64 `xml:"pdop,omitempty"`
 // 	AgeOfDGpsData *float64 `xml:"ageofdgpsdata,omitempty"`
-// 	DGpsId        *int     `xml:"dgpsid,omitempty"`
+// 	DGpsID        *int     `xml:"dgpsid,omitempty"`
 // }

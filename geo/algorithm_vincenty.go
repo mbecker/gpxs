@@ -29,8 +29,11 @@ func (v *Vincenty) Sigma() float64 {
 }
 
 // Duration (Vincenty) returns the time.Duration from point p1 to previousPoint in sec
-func (v *Vincenty) Duration(p1 *Point, previousPoint *Point) (float64, error) {
-	return p1.Timestamp.Sub(previousPoint.Timestamp).Seconds(), nil
+func (v *Vincenty) Duration(p1 Point, previousPoint Point) (float64, error) {
+	if p1.Timestamp.Valid && previousPoint.Timestamp.Valid {
+		return p1.Timestamp.Time.Sub(*previousPoint.Timestamp.Time).Seconds(), nil
+	}
+	return 0, errors.New("Point or previous point does not have a timestamp")
 }
 
 // CustomMovingPoints (Vincenty) defines which points should be used for "Moving"Time/Distance and if the it's set the new gpxPoint.Point Data
@@ -44,7 +47,7 @@ func (v *Vincenty) CustomMovingPoints(gpxPoint *GPXPoint, previousGPXPoint *GPXP
 	if gpxPoint.Speed < 1.0 {
 		return errors.New("Point Speed below threshold")
 	}
-	gpxPoint.Point.SetPointData(previousGPXPoint.Point, algorithm)
+	gpxPoint.Point.SetPointData(&previousGPXPoint.Point, algorithm)
 	return nil
 }
 

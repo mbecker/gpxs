@@ -13,7 +13,7 @@ type Algorithm interface {
 	CustomMovingPoints(gpxPoint *GPXPoint, previousGPXPoint *GPXPoint, algorithm Algorithm) error
 
 	// Returns the duration between previous and actual point
-	Duration(p1 *Point, previousPoint *Point) (float64, error)
+	Duration(p1 Point, previousPoint Point) (float64, error)
 	// Returns the duration between previous and actual point
 	Distance(p1 *Point, previousPoint *Point) (float64, error)
 	// Returns the speed between previous and actual point

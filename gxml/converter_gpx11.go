@@ -17,8 +17,8 @@ func convertToGpx11Models(gpxDoc *geo.GPX) *GPX11Gpx {
 	gpx11Doc.Version = "1.1"
 
 	gpx11Doc.XMLNs = "http://www.topografix.com/GPX/1/1"
-	gpx11Doc.XmlNsXsi = gpxDoc.XmlNsXsi
-	gpx11Doc.XmlSchemaLoc = gpxDoc.XmlSchemaLoc
+	gpx11Doc.XMLNsXsi = gpxDoc.XMLNsXsi
+	gpx11Doc.XMLSchemaLoc = gpxDoc.XMLSchemaLoc
 
 	if len(gpxDoc.Creator) == 0 {
 		gpx11Doc.Creator = defaultCreator
@@ -138,8 +138,8 @@ func convertFromGpx11Models(gpx11Doc *GPX11Gpx, algorithm geo.Algorithm) *geo.GP
 	gpxDoc := new(geo.GPX)
 
 	gpxDoc.XMLNs = gpx11Doc.XMLNs
-	gpxDoc.XmlNsXsi = gpx11Doc.XmlNsXsi
-	gpxDoc.XmlSchemaLoc = gpx11Doc.XmlSchemaLoc
+	gpxDoc.XMLNsXsi = gpx11Doc.XMLNsXsi
+	gpxDoc.XMLSchemaLoc = gpx11Doc.XMLSchemaLoc
 
 	gpxDoc.Creator = gpx11Doc.Creator
 	gpxDoc.Version = gpx11Doc.Version

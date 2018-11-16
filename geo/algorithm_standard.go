@@ -27,7 +27,10 @@ func (alg *AlgorithmStandard) Sigma() float64 {
 
 // Duration (AlgorithmStandard) returns the time.Duration from point p1 to previousPoint in sec
 func (alg *AlgorithmStandard) Duration(p1 *Point, previousPoint *Point) (float64, error) {
-	return p1.Timestamp.Sub(previousPoint.Timestamp).Seconds(), nil
+	if previousPoint.Timestamp.Valid && p1.Timestamp.Valid {
+		return p1.Timestamp.Time.Sub(*previousPoint.Timestamp.Time).Seconds(), nil
+	}
+	return 0, errors.New("Point or Previous Point does not have a timestamp")
 }
 
 // CustomMovingPoints (AlgorithmStandard) defines which points should be used for "Moving"Time/Distance and if the it's set the new gpxPoint.Point Data
@@ -39,7 +42,7 @@ func (alg *AlgorithmStandard) CustomMovingPoints(gpxPoint *GPXPoint, previousGPX
 
 	// speed < 1 m/s
 	if gpxPoint.Speed > 1.0 {
-		gpxPoint.Point.SetPointData(previousGPXPoint.Point, algorithm)
+		gpxPoint.Point.SetPointData(&previousGPXPoint.Point, algorithm)
 		return nil
 	}
 	return errors.New("Point Speed below threshold")
