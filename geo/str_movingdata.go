@@ -7,10 +7,30 @@ import (
 	"time"
 )
 
+<<<<<<< HEAD
 // NullTime from https://github.com/lib/pq/blob/8c6ee72f3e6bcb1542298dd5f76cb74af9742cec/encode.go#L586
 type NullTime struct {
 	Time  *time.Time
 	Valid bool // Valid is true if Time is not NULL
+=======
+//MovingData contains moving data
+type MovingData struct {
+	Duration        float64
+	Distance        float64
+	MovingTime      float64
+	StoppedTime     float64
+	MovingDistance  float64
+	StoppedDistance float64
+	MaxSpeed        float64
+	AverageSpeed    float64
+	MaxPace         float64
+	AveragePace     float64
+	MovingPoints    []GPXPoint
+	StoppedPoints   []GPXPoint
+	NumberValues    int
+	SumAverageSpeed float64
+	SumAveragePace  float64
+>>>>>>> 77f96e68b1afe2947395cba212309ac82543d9ff
 }
 
 func (nt *NullTime) SetTime(time *time.Time) {

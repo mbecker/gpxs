@@ -104,6 +104,7 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 
 					}
 
+<<<<<<< HEAD
 					// Create a slice with the length (not capacity!) of the slice gpxSegment.Points to save the pointer to the memory where the the GPXPoint is stored
 					gpxSegment.MovementStats.MovingData.Points = make([]*geo.GPXPoint, len(segment.Points))
 					gpxSegment.MovementStats.MovingData.Points = append(gpxSegment.MovementStats.MovingData.Points, &gpxSegment.Points[0])
@@ -114,6 +115,16 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 					gpxSegment.MovementStats.StoppedData.Points = make([]*geo.GPXPoint, len(segment.Points))
 
 					var previousGPXPoint geo.GPXPoint
+=======
+					// Create slices for Moving/StoppedPoints with the length (not capacity!) of the slice gpxSegment.Points  to store all points which belongs to MovingData based on standard deviation
+					gpxSegment.MovingData.MovingPoints = gpxSegment.Points[:0]                                            // https://github.com/golang/go/wiki/SliceTricks#filtering-without-allocating
+					gpxSegment.MovingData.MovingPoints = append(gpxSegment.MovingData.MovingPoints, gpxSegment.Points[0]) // Add the first point in the segment to the moving data since it's the starting point
+					gpxSegment.MovingData.StoppedPoints = gpxSegment.Points[:0]
+
+					// Set the previousGPXPoint to the actual point for the next loop
+					previousGPXPoint := gpxSegment.Points[0]
+					gpxSegment.MovingData.MaxPace = 1000000 // TODO: The initial vlaue is used for the if codition below (because MaxPace is basically the fastest (smallest) pace in min/km)
+>>>>>>> 77f96e68b1afe2947395cba212309ac82543d9ff
 
 					if algorithm.ShouldStandardDeviation() {
 						/**
@@ -150,11 +161,35 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 							gpxPoint.Point.SetPointData(&previousGPXPoint.Point, algorithm)
 
 							if x1 <= gpxPoint.Point.Duration && gpxPoint.Point.Duration <= x2 {
+<<<<<<< HEAD
 								// Points are in standard deviation area
 								gpxSegment.MovementStats.MovingData.SetValues(&gpxPoint, &prevPoint, index, algorithm)
 							} else {
 								// Points are not in standard deviation area
 								gpxSegment.MovementStats.StoppedData.SetValues(&gpxPoint, &prevPoint, index, algorithm)
+=======
+								gpxPoint.Point.SetPointData(previousGPXPoint.Point, algorithm)
+
+								gpxSegment.MovingData.MovingTime += gpxPoint.Point.Duration
+								gpxSegment.MovingData.MovingDistance += gpxPoint.Point.Distance
+								// Max Speed
+								if gpxPoint.Point.Speed > gpxSegment.MovingData.MaxSpeed {
+									gpxSegment.MovingData.MaxSpeed = gpxPoint.Point.Speed
+								}
+								// Max Pace
+								if gpxPoint.Point.Pace > 0.0 && gpxPoint.Point.Pace < gpxSegment.MovingData.MaxPace {
+									gpxSegment.MovingData.MaxPace = gpxPoint.Point.Pace
+								}
+
+								// Add "Moving" GPXPoint to gpxSegment.MovingData.MovingPoints
+								gpxSegment.MovingData.MovingPoints = append(gpxSegment.MovingData.MovingPoints, gpxPoint)
+							} else {
+								// Add "stopped" GPXPoint to gpxSegment.MovingData.MovingPoints
+								gpxSegment.MovingData.StoppedPoints = append(gpxSegment.MovingData.StoppedPoints, gpxPoint)
+
+								gpxSegment.MovingData.StoppedTime += gpxPoint.Point.Duration
+								gpxSegment.MovingData.StoppedDistance += gpxPoint.Point.Distance
+>>>>>>> 77f96e68b1afe2947395cba212309ac82543d9ff
 							}
 							// fmt.Println("2. Add to overall data")
 							gpxSegment.MovementStats.OverallData.SetValues(&gpxPoint, &prevPoint, index, algorithm)
@@ -173,11 +208,37 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 							err := algorithm.CustomMovingPoints(&gpxPoint, &previousGPXPoint, algorithm)
 							if err != nil {
 								// Error says: Do not use the point for "Moving"Time and "MovingDistance"
+<<<<<<< HEAD
 								gpxSegment.MovementStats.StoppedData.SetValues(&gpxPoint, &prevPoint, index, algorithm)
 							} else {
 								// TODO: the gpxPoint Data should be set by algorithm.CustomMovingPoints
 
 								gpxSegment.MovementStats.MovingData.SetValues(&gpxPoint, &prevPoint, index, algorithm)
+=======
+
+								// Add "Stopped" GPXPoint to gpxSegment.MovingData.StoppedPoints
+								gpxSegment.MovingData.StoppedPoints = append(gpxSegment.MovingData.StoppedPoints, gpxPoint)
+
+								gpxSegment.MovingData.StoppedTime += gpxPoint.Point.Duration
+								gpxSegment.MovingData.StoppedDistance += gpxPoint.Point.Distance
+							} else {
+								// TODO: the gpxPoint Data should be set by algorithm.CustomMovingPoints
+
+								gpxSegment.MovingData.MovingTime += gpxPoint.Point.Duration
+								gpxSegment.MovingData.MovingDistance += gpxPoint.Point.Distance
+
+								// Max Speed
+								if gpxPoint.Point.Speed > gpxSegment.MovingData.MaxSpeed {
+									gpxSegment.MovingData.MaxSpeed = gpxPoint.Point.Speed
+								}
+								// Max Pace
+								if gpxPoint.Point.Pace > 0.0 && gpxPoint.Point.Pace < gpxSegment.MovingData.MaxPace {
+									gpxSegment.MovingData.MaxPace = gpxPoint.Point.Pace
+								}
+
+								// Add "Moving" GPXPoint to gpxSegment.MovingData.MovingPoints
+								gpxSegment.MovingData.MovingPoints = append(gpxSegment.MovingData.MovingPoints, gpxPoint)
+>>>>>>> 77f96e68b1afe2947395cba212309ac82543d9ff
 							}
 							gpxSegment.MovementStats.OverallData.SetValues(&gpxPoint, &prevPoint, index, algorithm)
 

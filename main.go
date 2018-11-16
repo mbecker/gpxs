@@ -258,6 +258,13 @@ func main() {
 		// 	Alg:  &customAlgorithm,
 		// },
 		AlgStruct{
+<<<<<<< HEAD
+=======
+			Name: "Custom",
+			Alg:  &customAlgorithm,
+		},
+		AlgStruct{
+>>>>>>> 77f96e68b1afe2947395cba212309ac82543d9ff
 			Name: "Vinc. Speed Threshold (w/o SD)",
 			Alg:  &vincentyWithoutStandardDeviation,
 		},
