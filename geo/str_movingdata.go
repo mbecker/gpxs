@@ -9,8 +9,8 @@ import (
 
 // NullTime from https://github.com/lib/pq/blob/8c6ee72f3e6bcb1542298dd5f76cb74af9742cec/encode.go#L586
 type NullTime struct {
-	Time  *time.Time
-	Valid bool // Valid is true if Time is not NULL
+	Time  *time.Time // no point == nil
+	Valid bool       // Valid is true if Time is not NULL
 }
 
 func (nt *NullTime) SetTime(time *time.Time) {
@@ -100,30 +100,6 @@ func (md *MovementData) String(title string, prefix string) string {
 	return result
 }
 
-// SetMovingValues sets the mvoing and stopped values for MovingData (MovingTime, StoppedTime, MobingDistance, SzppedDistance, MaxSpeed, AverageSpeed)
-// func (md *MovingData) SetMovingValues(movingTime float64, stoppedTime float64, movingDistance float64, stoppedDistance float64, maxSpeed float64, averageSpeed float64, maxPace float64, averagePace float64, numberValues int) {
-// 	md.MovingTime += movingTime
-// 	md.StoppedTime += stoppedTime
-// 	md.MovingDistance += movingDistance
-// 	md.StoppedDistance += stoppedDistance
-
-// 	md.Duration = md.MovingTime + md.StoppedTime
-// 	md.Distance = md.MovingDistance + md.StoppedDistance
-
-// 	if maxSpeed > md.MaxSpeed {
-// 		md.MaxSpeed = maxSpeed
-// 	}
-// 	md.SumAverageSpeed += averageSpeed
-// 	if maxPace > md.MaxPace {
-// 		md.MaxPace = maxPace
-// 	}
-// 	md.SumAveragePace += averagePace
-// 	md.NumberValues = numberValues
-// 	md.AverageSpeed = md.SumAverageSpeed / float64(md.NumberValues)
-// 	md.AveragePace = md.SumAveragePace / float64(md.NumberValues)
-
-// }
-
 // SetValues set the values for MovementData
 func (md *MovementData) SetValues(gpxPoint *GPXPoint, previousGpxPoint *GPXPoint, count int, alg Algorithm) {
 	md.Count = count
@@ -179,9 +155,14 @@ func (md *MovementData) SetValues(gpxPoint *GPXPoint, previousGpxPoint *GPXPoint
 func (md *MovementData) SetValuesFromMovementData(movementData *MovementData, count int, alg Algorithm) {
 	md.Count = count
 
+	// Check that the time.Time pointer exists (if not: pointer == nil); if not the "create" a zero value time.Time; nedded for time.Before
+	var t0 time.Time
+	if md.EndTime.Valid {
+		t0 = *md.EndTime.Time
+	}
 	// Before reports whether the time instant md.EndTime.Time is before u.
-	if md.EndTime.Valid && movementData.EndTime.Valid && md.EndTime.Time.Before(*movementData.EndTime.Time) {
-		md.EndTime = movementData.EndTime
+	if movementData.EndTime.Valid && t0.Before(*movementData.EndTime.Time) {
+		md.EndTime.SetTime(movementData.EndTime.Time)
 	}
 
 	md.Duration += movementData.Duration
