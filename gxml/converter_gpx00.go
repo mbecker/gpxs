@@ -104,7 +104,6 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 
 					}
 
-<<<<<<< HEAD
 					// Create a slice with the length (not capacity!) of the slice gpxSegment.Points to save the pointer to the memory where the the GPXPoint is stored
 					gpxSegment.MovementStats.MovingData.Points = make([]*geo.GPXPoint, len(segment.Points))
 					gpxSegment.MovementStats.MovingData.Points = append(gpxSegment.MovementStats.MovingData.Points, &gpxSegment.Points[0])
@@ -115,16 +114,6 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 					gpxSegment.MovementStats.StoppedData.Points = make([]*geo.GPXPoint, len(segment.Points))
 
 					var previousGPXPoint geo.GPXPoint
-=======
-					// Create slices for Moving/StoppedPoints with the length (not capacity!) of the slice gpxSegment.Points  to store all points which belongs to MovingData based on standard deviation
-					gpxSegment.MovingData.MovingPoints = gpxSegment.Points[:0]                                            // https://github.com/golang/go/wiki/SliceTricks#filtering-without-allocating
-					gpxSegment.MovingData.MovingPoints = append(gpxSegment.MovingData.MovingPoints, gpxSegment.Points[0]) // Add the first point in the segment to the moving data since it's the starting point
-					gpxSegment.MovingData.StoppedPoints = gpxSegment.Points[:0]
-
-					// Set the previousGPXPoint to the actual point for the next loop
-					previousGPXPoint := gpxSegment.Points[0]
-					gpxSegment.MovingData.MaxPace = 1000000 // TODO: The initial vlaue is used for the if codition below (because MaxPace is basically the fastest (smallest) pace in min/km)
->>>>>>> 77f96e68b1afe2947395cba212309ac82543d9ff
 
 					if algorithm.ShouldStandardDeviation() {
 						/**
