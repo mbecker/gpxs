@@ -128,10 +128,7 @@ func (md *MovementData) String(title string, prefix string) string {
 func (md *MovementData) SetValues(gpxPoint *GPXPoint, previousGpxPoint *GPXPoint, count int, alg Algorithm) {
 	md.Count = count
 
-	err := md.EndTime.Scan(&gpxPoint.Timestamp.Time)
-	if err != nil {
-		fmt.Println(err)
-	}
+	md.EndTime.SetTime(gpxPoint.Timestamp.Time)
 
 	md.Duration += gpxPoint.Duration
 	md.Distance += gpxPoint.Distance
