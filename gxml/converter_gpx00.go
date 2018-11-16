@@ -68,20 +68,14 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 					gpxSegment.Points[0] = *convertPointFromGpx00(segment.Points[0])
 
 					// Set the time for gpxDoc, track, segment
-					if gpxSegment.Points[0].Timestamp.Valid && !gpxDoc.MovementStats.OverallData.StartTime.Valid {
-						gpxDoc.MovementStats.OverallData.StartTime.Scan(gpxSegment.Points[0].Timestamp)
-						gpxDoc.MovementStats.MovingData.StartTime.Scan(gpxSegment.Points[0].Timestamp)
-					}
+					gpxDoc.MovementStats.OverallData.StartTime.SetTime(gpxSegment.Points[0].Timestamp.Time)
+					gpxDoc.MovementStats.MovingData.StartTime.SetTime(gpxSegment.Points[0].Timestamp.Time)
 
-					if gpxSegment.Points[0].Timestamp.Valid && !gpxTrack.MovementStats.OverallData.StartTime.Valid {
-						gpxTrack.MovementStats.OverallData.StartTime.Scan(gpxSegment.Points[0].Timestamp)
-						gpxTrack.MovementStats.MovingData.StartTime.Scan(gpxSegment.Points[0].Timestamp)
-					}
+					gpxTrack.MovementStats.OverallData.StartTime.SetTime(gpxSegment.Points[0].Timestamp.Time)
+					gpxTrack.MovementStats.MovingData.StartTime.SetTime(gpxSegment.Points[0].Timestamp.Time)
 
-					if gpxSegment.Points[0].Timestamp.Valid && !gpxSegment.MovementStats.OverallData.StartTime.Valid {
-						gpxSegment.MovementStats.OverallData.StartTime.Scan(gpxSegment.Points[0].Timestamp)
-						gpxSegment.MovementStats.MovingData.StartTime.Scan(gpxSegment.Points[0].Timestamp)
-					}
+					gpxSegment.MovementStats.OverallData.StartTime.SetTime(gpxSegment.Points[0].Timestamp.Time)
+					gpxSegment.MovementStats.MovingData.StartTime.SetTime(gpxSegment.Points[0].Timestamp.Time)
 
 					// Define overallDuration for Standard Deviation (maybe useful for other algorthm as well?)
 					var overallDuration float64
@@ -107,9 +101,7 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 					// Create a slice with the length (not capacity!) of the slice gpxSegment.Points to save the pointer to the memory where the the GPXPoint is stored
 					gpxSegment.MovementStats.MovingData.Points = make([]*geo.GPXPoint, len(segment.Points))
 					gpxSegment.MovementStats.MovingData.Points = append(gpxSegment.MovementStats.MovingData.Points, &gpxSegment.Points[0])
-					if gpxSegment.Points[0].Timestamp.Valid {
-						gpxSegment.MovementStats.MovingData.StartTime.Scan(&gpxSegment.Points[0].Timestamp)
-					}
+					gpxSegment.MovementStats.MovingData.StartTime.SetTime(gpxSegment.Points[0].Timestamp.Time)
 
 					gpxSegment.MovementStats.StoppedData.Points = make([]*geo.GPXPoint, len(segment.Points))
 
