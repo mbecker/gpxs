@@ -42,8 +42,6 @@ func (pt *Point) SetPointData(prevPoint *Point, algorithm Algorithm) {
 	// Duration (sec)
 	duration, errDuration := algorithm.Duration(*pt, *prevPoint)
 	if errDuration != nil {
-		// fmt.Println(errDuration)
-		// fmt.Println("???")
 		duration = 0
 	}
 	pt.Duration = duration
