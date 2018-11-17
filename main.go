@@ -47,6 +47,10 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 		segmentStoppedTime     float64
 		segmentStartTime       *time.Time
 		segmentEndTime         *time.Time
+		segmentMaxPace         float64
+		segmentAveragePace     float64
+		segmentMaxSpeed        float64
+		segmentAverageSpeed    float64
 
 		gpxDocs []*geo.GPX
 	)
@@ -72,7 +76,8 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 			endTime = gpxDoc.MovementStats.OverallData.EndTime.Time
 
 			// Tracks
-			for _, track := range gpxDoc.Tracks {
+			for trackNo, track := range gpxDoc.Tracks {
+				fmt.Println("--> Track ", trackNo)
 				trackMd := track.MovementStats.OverallData
 				trackDistance += trackMd.Distance
 				trackDuration += trackMd.Duration
@@ -84,7 +89,8 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 				trackEndTime = track.MovementStats.OverallData.EndTime.Time
 
 				// Segments
-				for _, segment := range track.Segments {
+				for number, segment := range track.Segments {
+					fmt.Println("::: Segment ", number)
 					segmentMd := segment.MovementStats.OverallData
 					segmentDistance += segmentMd.Distance
 					segmentDuration += segmentMd.Duration
@@ -94,6 +100,10 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 					segmentStoppedTime += segment.MovementStats.StoppedData.Duration
 					segmentStartTime = segment.MovementStats.OverallData.StartTime.Time
 					segmentEndTime = segment.MovementStats.OverallData.EndTime.Time
+					segmentMaxPace = segment.MovementStats.StoppedData.MaxPace
+					segmentAveragePace = segment.MovementStats.StoppedData.AveragePace
+					segmentMaxSpeed = segment.MovementStats.StoppedData.MaxSpeed
+					segmentAverageSpeed = segment.MovementStats.StoppedData.AverageSpeed
 				}
 			}
 
@@ -176,6 +186,14 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 	tableData[x] = append(tableData[x], fmt.Sprintf("%v", segmentStartTime)) // Track Start Time
 	x++
 	tableData[x] = append(tableData[x], fmt.Sprintf("%v", segmentEndTime)) // Track Start Time
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%v", segmentMaxSpeed)) // Segment max pace
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%v", segmentAverageSpeed)) // Segment max pace
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%v", segmentMaxPace)) // Segment max pace
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%v", segmentAveragePace)) // Segment max pace
 	x++
 	tableData[x] = append(tableData[x], "------")
 	x++
@@ -375,6 +393,18 @@ func main() {
 		},
 		[]string{
 			"Segment End Time",
+		},
+		[]string{
+			"Segment Max Speed",
+		},
+		[]string{
+			"Segment Average Speed",
+		},
+		[]string{
+			"Segment Max Pace",
+		},
+		[]string{
+			"Segment Average Pace",
 		},
 		[]string{
 			"------",

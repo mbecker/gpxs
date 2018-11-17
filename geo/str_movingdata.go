@@ -119,10 +119,14 @@ func (md *MovementData) SetValues(gpxPoint *GPXPoint, previousGpxPoint *GPXPoint
 
 	// Pace
 	if md.MaxPace == 0 || (gpxPoint.Pace > 0.0 && gpxPoint.Pace < md.MaxPace) {
-		md.MaxPace = gpxPoint.Pace
+		if !math.IsInf(gpxPoint.Pace, 1) || !math.IsInf(gpxPoint.Pace, -1) {
+			md.MaxPace = gpxPoint.Pace
+		}
 	}
 	if averagePace, err := alg.Pace(md.Distance, md.Duration); err == nil {
-		md.AveragePace = averagePace
+		if !math.IsInf(averagePace, 1) || !math.IsInf(averagePace, -1) {
+			md.AveragePace = averagePace
+		}
 	}
 
 	// Latitude
@@ -178,10 +182,14 @@ func (md *MovementData) SetValuesFromMovementData(movementData *MovementData, co
 
 	// Pace
 	if md.MaxPace == 0 || (movementData.MaxPace > 0.0 && movementData.MaxPace < md.MaxPace) {
-		md.MaxPace = movementData.MaxPace
+		if !math.IsInf(movementData.MaxPace, 1) || !math.IsInf(movementData.MaxPace, -1) {
+			md.MaxPace = movementData.MaxPace
+		}
 	}
 	if averagePace, err := alg.Pace(md.Distance, md.Duration); err == nil {
-		md.AveragePace = averagePace
+		if !math.IsInf(averagePace, 1) || !math.IsInf(averagePace, -1) {
+			md.AveragePace = averagePace
+		}
 	}
 
 	// Latitude
