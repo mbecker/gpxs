@@ -122,11 +122,21 @@ func (v *Vincenty) Distance(p1 *Point, previousPoint *Point) (float64, error) {
 
 // Speed (Vincenty) returns the speed in m/s
 func (v *Vincenty) Speed(distance float64, duration float64) (float64, error) {
+
+	if duration == 0 {
+		return 0, errors.New("Duration is zero")
+	}
 	return distance / duration, nil
 }
 
 // Pace (Vincenty) returns the pace in s/m
 func (v *Vincenty) Pace(distance float64, duration float64) (float64, error) {
+	if math.IsInf(distance, 1) || math.IsInf(distance, -1) || math.IsNaN(distance) || math.IsInf(duration, 1) || math.IsNaN(duration) {
+		fmt.Println("WHATT THE HELL?")
+	}
+	if distance == 0 {
+		return 0, errors.New("Distance is zero")
+	}
 	return duration / distance, nil
 }
 
