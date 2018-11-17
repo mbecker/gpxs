@@ -107,3 +107,24 @@ func HaversineDistance(lat1, lon1, lat2, lon2 float64, earthRadius float64) floa
 
 	return d
 }
+
+// CheckActivityType returns the activity type (as a string number) based on my experience with strava, garmin, runkeeeper, ...
+func (alg *AlgorithmStandard) CheckActivityType(lowerCaseName string) (string, error) {
+
+	var activityTpesName map[string]string
+	activityTpesName = make(map[string]string)
+	activityTpesName["running"] = "9"
+	activityTpesName["lauf"] = "9"
+	activityTpesName["cycling"] = "1"
+	activityTpesName["rad"] = "1"
+	activityTpesName["walking"] = "4"
+	activityTpesName["hiking"] = "4"
+	activityTpesName["spaziergang"] = "4"
+
+	result := activityTpesName[lowerCaseName]
+	if len(result) == 0 {
+		return "", errors.New("Activity tpe not found")
+	}
+	return result, nil
+
+}

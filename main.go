@@ -47,6 +47,8 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 		segmentStoppedTime     float64
 		segmentStartTime       *time.Time
 		segmentEndTime         *time.Time
+
+		gpxDocs []*geo.GPX
 	)
 
 	for _, file := range files {
@@ -56,6 +58,7 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 			if err != nil {
 				panic(err)
 			}
+			gpxDocs = append(gpxDocs, gpxDoc)
 
 			// GPX
 			md := gpxDoc.MovementStats.OverallData
@@ -98,6 +101,10 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 		}
 	}
 	elapsed := time.Since(start)
+	var gpxDocsTypeString string
+	for _, doc := range gpxDocs {
+		gpxDocsTypeString += fmt.Sprintf("%s, ", doc.Type)
+	}
 
 	t01, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(duration)))
 	t02, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(movingTime)))
@@ -111,36 +118,68 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 	t08, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(segmentMovingTime)))
 	t09, _ := time.ParseDuration(fmt.Sprintf("%ds", int64(segmentStoppedTime)))
 
+	x := 0
 	tableData[0] = append(tableData[0], fmt.Sprintf("%d", countFiles)) // Metadata: # of files
-	tableData[1] = append(tableData[1], "------")
-	tableData[2] = append(tableData[2], fmt.Sprintf("%s", t01))                    // GPX Duration
-	tableData[3] = append(tableData[3], fmt.Sprintf("%f", distance/1000.0))        // GPX Distance
-	tableData[4] = append(tableData[4], fmt.Sprintf("%s", t02))                    // GPX Moving Time)
-	tableData[5] = append(tableData[5], fmt.Sprintf("%s", t03))                    // GPX Stopped Time
-	tableData[6] = append(tableData[6], fmt.Sprintf("%f", movingDistance/1000.0))  // GPX Moving Distance
-	tableData[7] = append(tableData[7], fmt.Sprintf("%f", stoppedDistance/1000.0)) // GPX Stopped Distance
-	tableData[8] = append(tableData[8], fmt.Sprintf("%v", startTime))              // GPX Start Time
-	tableData[9] = append(tableData[9], fmt.Sprintf("%v", endTime))                // GPX Start Time
-	tableData[10] = append(tableData[10], "------")
-	tableData[11] = append(tableData[11], fmt.Sprintf("%s", t04))                         // Track Duration
-	tableData[12] = append(tableData[12], fmt.Sprintf("%f", trackDistance/1000.0))        // Track Moving Distance
-	tableData[13] = append(tableData[13], fmt.Sprintf("%s", t05))                         // Track Moving Time
-	tableData[14] = append(tableData[14], fmt.Sprintf("%s", t06))                         // Track Stopped Time
-	tableData[15] = append(tableData[15], fmt.Sprintf("%f", trackMovingDistance/1000.0))  // Track Moving Distance
-	tableData[16] = append(tableData[16], fmt.Sprintf("%f", trackStoppedDistance/1000.0)) // Track Stopped Distance
-	tableData[17] = append(tableData[17], fmt.Sprintf("%v", trackStartTime))              // Track Start Time
-	tableData[18] = append(tableData[18], fmt.Sprintf("%v", trackEndTime))                // Track Start Time
-	tableData[19] = append(tableData[19], "------")
-	tableData[20] = append(tableData[20], fmt.Sprintf("%s", t07))                           // Segment Duration
-	tableData[21] = append(tableData[21], fmt.Sprintf("%f", segmentDistance/1000.0))        // Segment Distance
-	tableData[22] = append(tableData[22], fmt.Sprintf("%s", t08))                           // Segment Moving Time
-	tableData[23] = append(tableData[23], fmt.Sprintf("%s", t09))                           // Segment  Stopped Time
-	tableData[24] = append(tableData[24], fmt.Sprintf("%f", segmentMovingDistance/1000.0))  // Segment Moving Distance
-	tableData[25] = append(tableData[25], fmt.Sprintf("%f", segmentStoppedDistance/1000.0)) // Segment  Stopped Distance
-	tableData[26] = append(tableData[26], fmt.Sprintf("%v", segmentStartTime))              // Track Start Time
-	tableData[27] = append(tableData[27], fmt.Sprintf("%v", segmentEndTime))                // Track Start Time
-	tableData[28] = append(tableData[28], "------")
-	tableData[29] = append(tableData[29], fmt.Sprintf("%s", elapsed))
+	x++
+	tableData[x] = append(tableData[x], "------")
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%s", gpxDocsTypeString)) // GPX Duration
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%s", t01)) // GPX Duration
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%f", distance/1000.0)) // GPX Distance
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%s", t02)) // GPX Moving Time)
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%s", t03)) // GPX Stopped Time
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%f", movingDistance/1000.0)) // GPX Moving Distance
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%f", stoppedDistance/1000.0)) // GPX Stopped Distance
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%v", startTime)) // GPX Start Time
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%v", endTime)) // GPX Start Time
+	x++
+	tableData[x] = append(tableData[x], "------")
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%s", t04)) // Track Duration
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%f", trackDistance/1000.0)) // Track Moving Distance
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%s", t05)) // Track Moving Time
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%s", t06)) // Track Stopped Time
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%f", trackMovingDistance/1000.0)) // Track Moving Distance
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%f", trackStoppedDistance/1000.0)) // Track Stopped Distance
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%v", trackStartTime)) // Track Start Time
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%v", trackEndTime)) // Track Start Time
+	x++
+	tableData[x] = append(tableData[x], "------")
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%s", t07)) // Segment Duration
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%f", segmentDistance/1000.0)) // Segment Distance
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%s", t08)) // Segment Moving Time
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%s", t09)) // Segment  Stopped Time
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%f", segmentMovingDistance/1000.0)) // Segment Moving Distance
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%f", segmentStoppedDistance/1000.0)) // Segment  Stopped Distance
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%v", segmentStartTime)) // Track Start Time
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%v", segmentEndTime)) // Track Start Time
+	x++
+	tableData[x] = append(tableData[x], "------")
+	x++
+	tableData[x] = append(tableData[x], fmt.Sprintf("%s", elapsed))
 
 }
 
@@ -255,6 +294,9 @@ func main() {
 		},
 		[]string{
 			"------",
+		},
+		[]string{
+			"GPX Type",
 		},
 		[]string{
 			"GPX Duration",

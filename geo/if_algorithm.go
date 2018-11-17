@@ -2,6 +2,8 @@ package geo
 
 // Algorithm interface defines the customs funcs
 type Algorithm interface {
+	// Checks the activity tpe by the name (gpx, track, segment) and returns the activity tpye defined by an int
+	CheckActivityType(lowerCaseName string) (string, error)
 
 	// Should the normalization methof of standard deviation be used to determine which points belongs to moving and which one to stopped time/distance
 	ShouldStandardDeviation() bool

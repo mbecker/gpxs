@@ -2,6 +2,7 @@ package gxml
 
 import (
 	"math"
+	"strings"
 
 	"github.com/mbecker/gpxs/generic"
 	"github.com/mbecker/gpxs/geo"
@@ -46,7 +47,18 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 			gpxTrack.Number = track.Number.Value()
 		}
 
+		// Check Type of Activity: Strava defines the activity type with a nuber ("1" == Cycling, "4" = Hiking, "9" == Running,); other parties like Garmin / Runkeeper has the activity tpye as a descriptive text in the track.Name
 		gpxTrack.Type = track.Type
+		if len(gpxTrack.Type) == 0 {
+			activityName := strings.ToLower(track.Name)
+			activityType, err := algorithm.CheckActivityType(activityName)
+			if err == nil {
+				gpxTrack.Type = activityType
+			}
+		}
+		if len(gpxDoc.Type) == 0 {
+			gpxDoc.Type = gpxTrack.Type
+		}
 
 		if track.Segments != nil {
 			gpxTrack.Segments = make([]geo.GPXTrackSegment, len(track.Segments))

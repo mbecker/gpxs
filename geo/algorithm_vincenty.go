@@ -122,3 +122,24 @@ func (v *Vincenty) Speed(distance float64, duration float64) (float64, error) {
 func (v *Vincenty) Pace(distance float64, duration float64) (float64, error) {
 	return duration / distance, nil
 }
+
+// CheckActivityType returns the activity type (as a string number) based on my experience with strava, garmin, runkeeeper, ...
+func (v *Vincenty) CheckActivityType(lowerCaseName string) (string, error) {
+
+	var activityTpesName map[string]string
+	activityTpesName = make(map[string]string)
+	activityTpesName["running"] = "9"
+	activityTpesName["lauf"] = "9"
+	activityTpesName["cycling"] = "1"
+	activityTpesName["rad"] = "1"
+	activityTpesName["walking"] = "4"
+	activityTpesName["hiking"] = "4"
+	activityTpesName["spaziergang"] = "4"
+
+	result := activityTpesName[lowerCaseName]
+	if len(result) == 0 {
+		return "", errors.New("Activity tpe not found")
+	}
+	return result, nil
+
+}
