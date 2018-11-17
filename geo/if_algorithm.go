@@ -2,6 +2,9 @@ package geo
 
 // Algorithm interface defines the customs funcs
 type Algorithm interface {
+	// String returns the descriptive / name for identification
+	String() string
+
 	// Checks the activity tpe by the name (gpx, track, segment) and returns the activity tpye defined by an int
 	CheckActivityType(lowerCaseName string) (string, error)
 

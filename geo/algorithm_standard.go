@@ -7,12 +7,18 @@ import (
 
 //AlgorithmStandard defines the basic calculation of the distance (2D/3D) and the Haversine formula
 type AlgorithmStandard struct {
+	Name                          string
 	ShouldStandardDeviationBeUsed bool // Should the standard deviation be used to determine which points are used for calculation
 	SigmaMultiplier               float64
 	ShouldHaversine               bool // Should the formula of Haversine be used to calculate the distance between two points
 	OneDegree                     float64
 	EarthRadius                   float64
 	Should3D                      bool // Should the distance be calculated with the elevation different of each point
+}
+
+// String returns the name of the algorithm
+func (alg *AlgorithmStandard) String() string {
+	return alg.Name
 }
 
 // ShouldStandardDeviation (AlgorithmStandard) returns if the standard deviation should be used or not

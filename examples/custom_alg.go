@@ -10,6 +10,11 @@ type CustomAlgorithm struct {
 	CustomParameter float64
 }
 
+// String returns the name of the algorithm
+func (c *CustomAlgorithm) String() string {
+	return "Custom Alg"
+}
+
 // ShouldStandardDeviation (CustomAlgorithm) returns if the standard deviation should be used or not
 func (c *CustomAlgorithm) ShouldStandardDeviation() bool {
 	return false

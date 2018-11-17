@@ -16,6 +16,12 @@ type Vincenty struct {
 	SemiMinorAxisB                float64
 	Epsilon                       float64
 	MaxIterations                 int
+	Name                          string
+}
+
+// String returns the name of the algorithm
+func (v *Vincenty) String() string {
+	return v.Name
 }
 
 // ShouldStandardDeviation (Vincenty) returns if the standard deviation should be used or not
