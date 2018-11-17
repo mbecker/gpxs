@@ -76,8 +76,7 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 			endTime = gpxDoc.MovementStats.OverallData.EndTime.Time
 
 			// Tracks
-			for trackNo, track := range gpxDoc.Tracks {
-				fmt.Println("--> Track ", trackNo)
+			for _, track := range gpxDoc.Tracks {
 				trackMd := track.MovementStats.OverallData
 				trackDistance += trackMd.Distance
 				trackDuration += trackMd.Duration
@@ -89,8 +88,7 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 				trackEndTime = track.MovementStats.OverallData.EndTime.Time
 
 				// Segments
-				for number, segment := range track.Segments {
-					fmt.Println("::: Segment ", number)
+				for _, segment := range track.Segments {
 					segmentMd := segment.MovementStats.OverallData
 					segmentDistance += segmentMd.Distance
 					segmentDuration += segmentMd.Duration
