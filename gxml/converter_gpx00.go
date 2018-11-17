@@ -103,7 +103,7 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 						gpxPoint.Point.SetPointData(&prevPoint.Point, algorithm)
 
 						// ! Important for Standard deviation ! Add the duration / distance to the overall duration to know how long the duration / distance for the all points are (All point == Segment OverallData)
-						overallDuration += gpxPoint.Point.Duration
+						overallDuration += gpxPoint.Point.Distance / gpxPoint.Point.Duration
 
 						// Add GPXPoint to Slice
 						gpxSegment.Points[index] = gpxPoint
@@ -134,7 +134,7 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 						var squaredDeviationSum float64 // Sum of all squared deviation from each point
 						for index := 1; index < len(gpxSegment.Points); index++ {
 							point := gpxSegment.Points[index]
-							squaredDeviationSum += math.Pow(point.Duration-μ, 2)
+							squaredDeviationSum += math.Pow((point.Distance/point.Duration)-μ, 2)
 						}
 
 						// 3. Define the variance of the population: Divide the sum of all squared deviation of each points by the number of the population (in the previous step we used all point except the first one: len(seg.Points)-1)
@@ -153,7 +153,8 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 							gpxPoint := gpxSegment.Points[index]
 							gpxPoint.Point.SetPointData(&previousGPXPoint.Point, algorithm)
 
-							if x1 <= gpxPoint.Point.Duration && gpxPoint.Point.Duration <= x2 {
+							pointXValue := gpxPoint.Distance / gpxPoint.Duration
+							if x1 <= pointXValue && pointXValue <= x2 {
 								// Points are in standard deviation area
 								gpxSegment.MovementStats.MovingData.SetValues(&gpxPoint, &prevPoint, index, algorithm)
 							} else {
