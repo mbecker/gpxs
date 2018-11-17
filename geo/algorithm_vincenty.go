@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"strings"
 )
 
 // Vincenty implements the Vincenty formula to calculate the distance
@@ -143,9 +144,16 @@ func (v *Vincenty) CheckActivityType(lowerCaseName string) (string, error) {
 	activityTpesName["spaziergang"] = "4"
 
 	result := activityTpesName[lowerCaseName]
-	if len(result) == 0 {
-		return "", errors.New("Activity tpe not found")
+	if len(result) > 0 {
+		return result, nil
 	}
-	return result, nil
+
+	for key, value := range activityTpesName {
+		if strings.Contains(lowerCaseName, key) {
+			return value, nil
+		}
+	}
+
+	return "", errors.New("No activity type found")
 
 }

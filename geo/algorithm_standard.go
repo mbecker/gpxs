@@ -3,6 +3,7 @@ package geo
 import (
 	"errors"
 	"math"
+	"strings"
 )
 
 //AlgorithmStandard defines the basic calculation of the distance (2D/3D) and the Haversine formula
@@ -128,9 +129,16 @@ func (alg *AlgorithmStandard) CheckActivityType(lowerCaseName string) (string, e
 	activityTpesName["spaziergang"] = "4"
 
 	result := activityTpesName[lowerCaseName]
-	if len(result) == 0 {
-		return "", errors.New("Activity tpe not found")
+	if len(result) > 0 {
+		return result, nil
 	}
-	return result, nil
+
+	for key, value := range activityTpesName {
+		if strings.Contains(lowerCaseName, key) {
+			return value, nil
+		}
+	}
+
+	return "", errors.New("No activity type found")
 
 }
