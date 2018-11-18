@@ -39,6 +39,14 @@ type MovementStats struct {
 	OverallData MovementData
 	MovingData  MovementData
 	StoppedData MovementData
+	SD          SDData
+}
+
+// SDData includes the standard deviation information
+type SDData struct {
+	Valid bool
+	X1    float64
+	X2    float64
 }
 
 // MovementData represent the data/stats of 'overall', 'moving' and 'stopped'
@@ -63,8 +71,6 @@ type MovementData struct {
 	MaxLongitude float64
 	MinEvelation float64
 	MaxEvelation float64
-
-	Points []*GPXPoint
 }
 
 func (ms *MovementStats) String() string {
@@ -152,8 +158,6 @@ func (md *MovementData) SetValues(gpxPoint *GPXPoint, previousGpxPoint *GPXPoint
 	if (md.MaxEvelation == 0 && gpxPoint.Elevation.Value() > 0) || (md.MaxEvelation > gpxPoint.Elevation.Value()) {
 		md.MaxEvelation = gpxPoint.Elevation.Value()
 	}
-
-	md.Points = append(md.Points, gpxPoint)
 }
 
 func (md *MovementData) SetValuesFromMovementData(movementData *MovementData, count int, alg Algorithm) {
@@ -214,9 +218,5 @@ func (md *MovementData) SetValuesFromMovementData(movementData *MovementData, co
 	}
 	if (md.MaxEvelation == 0 && movementData.MaxEvelation > 0) || (md.MaxEvelation > movementData.MaxEvelation) {
 		md.MaxEvelation = movementData.MaxEvelation
-	}
-
-	for _, point := range movementData.Points {
-		md.Points = append(md.Points, point)
 	}
 }

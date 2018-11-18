@@ -36,7 +36,7 @@ func (v *Vincenty) Sigma() float64 {
 }
 
 // Duration (Vincenty) returns the time.Duration from point p1 to previousPoint in sec
-func (v *Vincenty) Duration(p1 Point, previousPoint Point) (float64, error) {
+func (v *Vincenty) Duration(p1 *Point, previousPoint *Point) (float64, error) {
 	if p1.Timestamp.Valid && previousPoint.Timestamp.Valid {
 		return p1.Timestamp.Time.Sub(*previousPoint.Timestamp.Time).Seconds(), nil
 	}

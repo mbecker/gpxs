@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -10,11 +11,164 @@ import (
 	"github.com/mbecker/gpxs/geo"
 	"github.com/mbecker/gpxs/gpxs"
 	"github.com/olekukonko/tablewriter"
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/draw"
 )
 
 type AlgStruct struct {
 	Name string
 	Alg  geo.Algorithm
+}
+
+func executionTime(start time.Time, name string) {
+	duration := time.Since(start)
+	fmt.Printf("Execution time: %s - %s", name, duration)
+}
+
+func parseFilesForPlot(fileDirectory string, files []os.FileInfo, alg geo.Algorithm) {
+	for _, file := range files {
+
+		if file.IsDir() == false && filepath.Ext(file.Name()) == ".gpx" {
+			gpxDoc, err := gpxs.ParseFile(filepath.Join(fileDirectory, file.Name()), alg)
+			if err != nil {
+				panic(err)
+			}
+			var extension = filepath.Ext(file.Name())
+			var name = file.Name()[0 : len(file.Name())-len(extension)]
+			fileName := fmt.Sprintf("%s-graph-%s.png", name, alg.String())
+			graphPath := filepath.Join(fileDirectory, fileName)
+			createPlot(gpxDoc, alg.String(), graphPath)
+		}
+	}
+}
+
+func createPlot(gpx *geo.GPX, title string, filePath string) {
+
+	p, err := plot.New()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	p.Title.Text = title
+	p.X.Label.Text = "Distance"
+	p.Y.Label.Text = "Speed (m/s)"
+
+	points := graphPoints(gpx)
+
+	// Make a line plotter with points and set its style.
+	lpLineOverallPoints, lpPointsOverallPoints, err := plotter.NewLinePoints(points[2])
+	if err != nil {
+		fmt.Println("1")
+		fmt.Println(err)
+		return
+	}
+	// lpLineOverallPoints.Color = color.RGBA{G: 255, A: 255}
+	// lpPointsOverallPoints.Shape = draw.PyramidGlyph{}
+	// lpPointsOverallPoints.Color = color.RGBA{R: 255, A: 255}
+
+	// Make a scatter plotter and set its style.
+	scatterStoppedPoints, err := plotter.NewScatter(points[3])
+	if err != nil {
+		fmt.Println("2")
+		fmt.Println(err)
+		return
+	}
+	scatterStoppedPoints.GlyphStyle.Color = color.RGBA{242, 60, 80, 0xff}
+	scatterStoppedPoints.Color = color.RGBA{242, 60, 80, 0xff}
+	scatterStoppedPoints.GlyphStyle.Shape = draw.CircleGlyph{}
+	scatterStoppedPoints.GlyphStyle.Radius = 4
+	// Add the plotters to the plot, with a legend entry for each
+	p.Add(lpLineOverallPoints, lpPointsOverallPoints, scatterStoppedPoints)
+	p.Legend.Add("Overall Points", lpLineOverallPoints, lpPointsOverallPoints)
+	p.Legend.Add("Stopped Points", scatterStoppedPoints)
+
+	// Standard Deviation
+	if gpx.MovementStats.SD.Valid {
+		// Standard Deviation lower border
+		lpLineX1, _, err := plotter.NewLinePoints(points[0])
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		lpLineX1.Color = color.RGBA{242, 60, 80, 0xff}
+
+		// Standard Deviation higher border
+		lpLineX2, _, err := plotter.NewLinePoints(points[1])
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		lpLineX2.Color = color.RGBA{242, 60, 80, 0xff}
+		p.Add(lpLineX1, lpLineX2)
+		p.Legend.Add("SD y1", lpLineX1)
+		p.Legend.Add("SD y2", lpLineX2)
+	}
+
+	// Save the plot to a PNG file.
+	if err := p.Save(21*vg.Inch, 12*vg.Inch, filePath); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+}
+
+// graphPoints returns the points for moving and stopped points, and adds the x1/x1 (here y1/y2) line of standard deviation
+func graphPoints(gpx *geo.GPX) map[int]plotter.XYs {
+
+	ptX1 := make(plotter.XYs, gpx.PointsCount)
+	ptX2 := make(plotter.XYs, gpx.PointsCount)
+	if gpx.MovementStats.SD.Valid {
+		ptX1[0].X = 0
+		ptX1[0].Y = gpx.MovementStats.SD.X1
+
+		ptX2[0].X = 0
+		ptX2[0].Y = gpx.MovementStats.SD.X2
+	}
+
+	ptAll := make(plotter.XYs, gpx.PointsCount)
+	ptStopped := make(plotter.XYs, gpx.PointsCount)
+
+	var distance float64
+	i := 0
+	for _, track := range gpx.Tracks {
+		for _, segment := range track.Segments {
+			for x, point := range segment.Points {
+				distance += (point.Distance / 1000)
+
+				// Standard Deviation
+				if gpx.MovementStats.SD.Valid {
+					ptX1[i].X = distance
+					ptX1[i].Y = gpx.MovementStats.SD.X1
+
+					ptX2[i].X = distance
+					ptX2[i].Y = gpx.MovementStats.SD.X2
+				}
+
+				ptAll[i].X = distance
+				ptAll[i].Y = point.Distance / point.Duration
+				if !point.IsMoving {
+					ptStopped[i].X = distance
+					ptStopped[i].Y = point.Distance / point.Duration
+				}
+				if x == 0 {
+					ptAll[0].X = 0
+					ptAll[0].Y = segment.Points[x+1].Distance / segment.Points[x+1].Duration // Uhh Dangerous
+				}
+				i++
+			}
+		}
+	}
+
+	m := make(map[int]plotter.XYs)
+	m[0] = ptX1
+	m[1] = ptX2
+	m[2] = ptAll
+	m[3] = ptStopped
+
+	return m
 }
 
 func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, tableData [][]string) {
@@ -57,11 +211,12 @@ func parseFiles(fileDirectory string, files []os.FileInfo, alg geo.Algorithm, ta
 
 	for _, file := range files {
 
-		if file.IsDir() == false {
+		if file.IsDir() == false && filepath.Ext(file.Name()) == ".gpx" {
 			gpxDoc, err := gpxs.ParseFile(filepath.Join(fileDirectory, file.Name()), alg)
 			if err != nil {
 				panic(err)
 			}
+
 			gpxDocs = append(gpxDocs, gpxDoc)
 
 			// GPX
@@ -205,63 +360,71 @@ func main() {
 	// 	CustomParameter: 100.9,
 	// }
 
+	var sigmaMultiplier = 1.959964
+
 	vincentyWithoutStandardDeviation := geo.Vincenty{
 		ShouldStandardDeviationBeUsed: false,
-		SigmaMultiplier:               1.644854, // ~95%
+		SigmaMultiplier:               sigmaMultiplier, // ~90%
 		OneDegree:                     1000.0 * 10000.8 / 90.0,
 		EarthRadius:                   6378137, // WGS-84 ellipsoid; See https://en.wikipedia.org/wiki/World_Geodetic_System
 		Flattening:                    1 / 298.257223563,
 		SemiMinorAxisB:                6356752.314245,
 		Epsilon:                       1e-12,
 		MaxIterations:                 200,
+		Name:                          "VincentySpeedThreshold",
 	}
 
 	vincenty := geo.Vincenty{
 		ShouldStandardDeviationBeUsed: true,
-		SigmaMultiplier:               1.644854, // ~95%
+		SigmaMultiplier:               sigmaMultiplier, // ~95%
 		OneDegree:                     1000.0 * 10000.8 / 90.0,
 		EarthRadius:                   6378137, // WGS-84 ellipsoid; See https://en.wikipedia.org/wiki/World_Geodetic_System
 		Flattening:                    1 / 298.257223563,
 		SemiMinorAxisB:                6356752.314245,
 		Epsilon:                       1e-12,
 		MaxIterations:                 200,
+		Name:                          "VincentySD",
 	}
 
-	// algorithmStandardLength2d := geo.AlgorithmStandard{
-	// 	ShouldStandardDeviationBeUsed: false,
-	// 	SigmaMultiplier:               1.644854, // ~95%
-	// 	ShouldHaversine:               false,
-	// 	OneDegree:                     1000.0 * 10000.8 / 90.0,
-	// 	EarthRadius:                   6378137,
-	// 	Should3D:                      false,
-	// }
+	algorithmStandardLength2d := geo.AlgorithmStandard{
+		ShouldStandardDeviationBeUsed: false,
+		SigmaMultiplier:               sigmaMultiplier, // ~95%
+		ShouldHaversine:               false,
+		OneDegree:                     1000.0 * 10000.8 / 90.0,
+		EarthRadius:                   6378137,
+		Should3D:                      false,
+		Name:                          "gpxgoLength2d",
+	}
 
-	// algorithmStandarLength2ddWithStandardDeviation := geo.AlgorithmStandard{
-	// 	ShouldStandardDeviationBeUsed: true,
-	// 	SigmaMultiplier:               1.644854, // ~95%
-	// 	ShouldHaversine:               false,
-	// 	OneDegree:                     1000.0 * 10000.8 / 90.0,
-	// 	EarthRadius:                   6378137,
-	// 	Should3D:                      false,
-	// }
+	algorithmStandarLength2ddWithStandardDeviation := geo.AlgorithmStandard{
+		ShouldStandardDeviationBeUsed: true,
+		SigmaMultiplier:               sigmaMultiplier, // ~95%
+		ShouldHaversine:               false,
+		OneDegree:                     1000.0 * 10000.8 / 90.0,
+		EarthRadius:                   6378137,
+		Should3D:                      false,
+		Name:                          "gpxgoLength2dSD",
+	}
 
-	// algorithmStandardLength3d := geo.AlgorithmStandard{
-	// 	ShouldStandardDeviationBeUsed: false,
-	// 	SigmaMultiplier:               1.644854, // ~95%
-	// 	ShouldHaversine:               false,
-	// 	OneDegree:                     1000.0 * 10000.8 / 90.0,
-	// 	EarthRadius:                   6378137,
-	// 	Should3D:                      true,
-	// }
+	algorithmStandardLength3d := geo.AlgorithmStandard{
+		ShouldStandardDeviationBeUsed: false,
+		SigmaMultiplier:               sigmaMultiplier, // ~95%
+		ShouldHaversine:               false,
+		OneDegree:                     1000.0 * 10000.8 / 90.0,
+		EarthRadius:                   6378137,
+		Should3D:                      true,
+		Name:                          "gpxgoLength3d",
+	}
 
-	// algorithmStandarLength3ddWithStandardDeviation := geo.AlgorithmStandard{
-	// 	ShouldStandardDeviationBeUsed: true,
-	// 	SigmaMultiplier:               1.644854, // ~95%
-	// 	ShouldHaversine:               false,
-	// 	OneDegree:                     1000.0 * 10000.8 / 90.0,
-	// 	EarthRadius:                   6378137,
-	// 	Should3D:                      true,
-	// }
+	algorithmStandarLength3ddWithStandardDeviation := geo.AlgorithmStandard{
+		ShouldStandardDeviationBeUsed: true,
+		SigmaMultiplier:               sigmaMultiplier, // ~95%
+		ShouldHaversine:               false,
+		OneDegree:                     1000.0 * 10000.8 / 90.0,
+		EarthRadius:                   6378137,
+		Should3D:                      true,
+		Name:                          "gpxgoLength3dSD",
+	}
 
 	currentDirectory, err := os.Getwd()
 	if err != nil {
@@ -286,22 +449,22 @@ func main() {
 			Name: "Vinc. SD",
 			Alg:  &vincenty,
 		},
-		// AlgStruct{
-		// 	Name: "Standard (length2D) W/o standard deviation",
-		// 	Alg:  &algorithmStandardLength2d,
-		// },
-		// AlgStruct{
-		// 	Name: "Standard (length2D) With standard deviation",
-		// 	Alg:  &algorithmStandarLength2ddWithStandardDeviation,
-		// },
-		// AlgStruct{
-		// 	Name: "Standard (length3D) W/o standard deviation",
-		// 	Alg:  &algorithmStandardLength3d,
-		// },
-		// AlgStruct{
-		// 	Name: "Standard (length3D) With standard deviation",
-		// 	Alg:  &algorithmStandarLength3ddWithStandardDeviation,
-		// },
+		AlgStruct{
+			Name: "Standard (length2D) W/o standard deviation",
+			Alg:  &algorithmStandardLength2d,
+		},
+		AlgStruct{
+			Name: "Standard (length2D) With standard deviation",
+			Alg:  &algorithmStandarLength2ddWithStandardDeviation,
+		},
+		AlgStruct{
+			Name: "Standard (length3D) W/o standard deviation",
+			Alg:  &algorithmStandardLength3d,
+		},
+		AlgStruct{
+			Name: "Standard (length3D) With standard deviation",
+			Alg:  &algorithmStandarLength3ddWithStandardDeviation,
+		},
 	}
 
 	tableData := [][]string{
@@ -414,6 +577,7 @@ func main() {
 
 	for _, alg := range algorithms {
 		parseFiles(fileDirectory, files, alg.Alg, tableData)
+		parseFilesForPlot(fileDirectory, files, alg.Alg)
 	}
 
 	// readFiles()
@@ -430,4 +594,5 @@ func main() {
 	table.SetHeader(header)
 	table.AppendBulk(tableData)
 	table.Render() // Send output
+
 }

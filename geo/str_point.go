@@ -15,6 +15,8 @@ type Point struct {
 	Duration float64 // The duration (sec) from the previos to this point
 	Speed    float64 // The speed (m/s) from the previous point to this point
 	Pace     float64 // The pace (m/s) from the previous point to this point
+
+	IsMoving bool // Is the poin in the moving data (true) or in the sopped data (false)
 }
 
 //GetLatitude returns the latitude
@@ -40,7 +42,7 @@ func (pt *Point) GetElevation() generic.NullableFloat64 {
 // SetPointData sets the the point data for duration, distance, speed, pace
 func (pt *Point) SetPointData(prevPoint *Point, algorithm Algorithm) {
 	// Duration (sec)
-	duration, errDuration := algorithm.Duration(*pt, *prevPoint)
+	duration, errDuration := algorithm.Duration(pt, prevPoint)
 	if errDuration != nil {
 		duration = 0
 	}

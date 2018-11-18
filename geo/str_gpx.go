@@ -43,7 +43,8 @@ type GPX struct {
 	 * TODO:
 	 * - [x] add type in converter
 	 */
-	Type string
+	Type        string
+	PointsCount int
 }
 
 func (gpx *GPX) String() string {
