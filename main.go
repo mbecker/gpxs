@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/csv"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -116,6 +118,38 @@ var algorithms = []geo.Algorithm{
 		Should3D:                      true,
 		Name:                          "gpxgoLength3dSD",
 	},
+}
+
+var tableCSVData = [][]string{
+	{
+		"Algorithm Name", "# of files", "Execution Time",
+		"GPX Type(s)", "GPX Start Time", "GPX End Time",
+		"GPX Duration", "GPX Distance", "GPX Moving Time", "GPX Moving Distance", "GPX Stopped Time", "GPX Stopped Distance", "GPX Stopped Distance",
+		"Track Start Time", "Track End Time",
+		"Track Duration", "Track Distance", "Track Moving Time", "Track Moving Distance", "Track Stopped Time", "Track Stopped Distance", "Track Stopped Distance",
+		"Segment Start Time", "Segment End Time",
+		"Segment Duration", "Segment Distance", "Segment Moving Time", "Segment Moving Distance", "Segment Stopped Time", "Segment Stopped Distance", "Segment Stopped Distance",
+	},
+}
+
+func writeCSV() {
+	file, err := os.Create("result.csv")
+	checkError("Cannot create file", err)
+	defer file.Close()
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	for _, value := range tableCSVData {
+		err := writer.Write(value)
+		checkError("Cannot write to file", err)
+	}
+}
+
+func checkError(message string, err error) {
+	if err != nil {
+		log.Fatal(message, err)
+	}
 }
 
 var tableData = [][]string{
