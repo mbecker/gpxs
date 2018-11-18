@@ -15,7 +15,7 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 	if gpx00DocTracks == nil {
 		return
 	}
-	gpxDoc.PointsCount = 1
+	gpxDoc.PointsCount = 0
 	gpxDoc.Tracks = make([]geo.GPXTrack, len(gpx00DocTracks))
 	gpxDoc.MovementStats = geo.MovementStats{
 		OverallData: geo.MovementData{},
@@ -81,6 +81,7 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 
 					// Set the first point in the slice gpxSegment.Points that the second one can use this point for caluclation of distance, duration
 					var prevPoint geo.GPXPoint
+					gpxDoc.PointsCount++
 					gpxSegment.Points[0] = *convertPointFromGpx00(segment.Points[0])
 					gpxSegment.Points[0].IsMoving = true
 
@@ -111,9 +112,8 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 						overallDuration += gpxPoint.Point.Distance / gpxPoint.Point.Duration
 
 						// Add GPXPoint to Slice
-						gpxSegment.Points[index] = gpxPoint
 						gpxDoc.PointsCount++
-
+						gpxSegment.Points[index] = gpxPoint
 					}
 
 					// Create a slice with the length (not capacity!) of the slice gpxSegment.Points to save the pointer to the memory where the the GPXPoint is stored
