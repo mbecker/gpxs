@@ -122,22 +122,38 @@ func (v *Vincenty) Distance(p1 *Point, previousPoint *Point) (float64, error) {
 
 // Speed (Vincenty) returns the speed in m/s
 func (v *Vincenty) Speed(distance float64, duration float64) (float64, error) {
-
 	if duration == 0 {
 		return 0, errors.New("Duration is zero")
 	}
+	speed := distance / duration
+	if math.IsInf(speed, 1) {
+		return 0, errors.New("Duration is +Inf")
+	}
+	if math.IsNaN(speed) {
+		return 0, errors.New("Duration IsNaN")
+	}
+
 	return distance / duration, nil
 }
 
 // Pace (Vincenty) returns the pace in s/m
 func (v *Vincenty) Pace(distance float64, duration float64) (float64, error) {
 	if math.IsInf(distance, 1) || math.IsInf(distance, -1) || math.IsNaN(distance) || math.IsInf(duration, 1) || math.IsNaN(duration) {
-		fmt.Println("WHATT THE HELL?")
+		return 0, errors.New("Distance is +INf or NaN")
 	}
 	if distance == 0 {
 		return 0, errors.New("Distance is zero")
 	}
-	return duration / distance, nil
+
+	pace := duration / distance
+	if math.IsInf(pace, 1) {
+		return 0, errors.New("Duration is +Inf")
+	}
+	if math.IsNaN(pace) {
+		return 0, errors.New("Duration IsNaN")
+	}
+
+	return pace, nil
 }
 
 // CheckActivityType returns the activity type (as a string number) based on my experience with strava, garmin, runkeeeper, ...

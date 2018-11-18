@@ -95,8 +95,8 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 					gpxSegment.MovementStats.OverallData.StartTime.SetTime(gpxSegment.Points[0].Timestamp.Time)
 					gpxSegment.MovementStats.MovingData.StartTime.SetTime(gpxSegment.Points[0].Timestamp.Time)
 
-					// Define overallDuration for Standard Deviation (maybe useful for other algorthm as well?)
-					var overallDuration float64
+					// Define sumSpeed for Standard Deviation (maybe useful for other algorthm as well?)
+					var sumSpeed float64
 
 					// Loop all points and set the data of each point like duration, distance, speed, etc.
 					for index := 1; index < len(segment.Points); index++ {
@@ -109,7 +109,7 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 						gpxPoint.Point.SetPointData(&prevPoint.Point, algorithm)
 
 						// ! Important for Standard deviation ! Add the duration / distance to the overall duration to know how long the duration / distance for the all points are (All point == Segment OverallData)
-						overallDuration += gpxPoint.Point.Distance / gpxPoint.Point.Duration
+						sumSpeed += gpxPoint.Speed
 
 						// Add GPXPoint to Slice
 						gpxDoc.PointsCount++
@@ -128,7 +128,7 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 
 						// Standard deviation to have a baseline of points for the calculations
 						// 1. Define the mean mu (μ) for a population series: All summed values / count of values
-						μ := overallDuration / float64(len(gpxSegment.Points)) // The mean mu (μ) for a population series
+						μ := sumSpeed / float64(len(gpxSegment.Points))
 
 						// 2.a) Define Deviation for each point: (x1−μ)
 						// 2.b) Square each deviation: (x1−μ)^2
@@ -136,22 +136,32 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 						var squaredDeviationSum float64 // Sum of all squared deviation from each point
 						for index := 1; index < len(gpxSegment.Points); index++ {
 							point := gpxSegment.Points[index]
-							squaredDeviationSum += math.Pow((point.Distance/point.Duration)-μ, 2)
+							squaredDeviationSum += math.Pow(point.Speed-μ, 2)
 						}
 
 						// 3. Define the variance of the population: Divide the sum of all squared deviation of each points by the number of the population (in the previous step we used all point except the first one: len(seg.Points)-1)
-						variance := squaredDeviationSum / float64((len(gpxSegment.Points) - 1))
+						/**
+						 * TODO:
+						 * - [x] Check that "len(gpxSegment.Points)-1" or "len(gpxSegment.Points)" should be used
+						 *			In previous step we are starting from point "1" (not "0") but spedd (distance/duration) is defined as follows: The speed from point0 to point1 is set in point1
+						 */
+						variance := squaredDeviationSum / float64((len(gpxSegment.Points)))
 
 						// 4. Define the standard deviation
 						standardDeviation := math.Sqrt(variance)
 
 						// 5. Define the the x1 and x2 value in which the points should be (sigma σ defines the range)
-						x1 := μ - algorithm.Sigma()*standardDeviation
-						x2 := μ + algorithm.Sigma()*standardDeviation
+						// If the standardDeviation is Zero then one of the previos parameters == 0 ( here of course "standardDeviation", ... ); that's mostly because too few points in a segment
+						x1 := 0.0
+						x2 := 0.0
+						if standardDeviation > 0 {
+							x1 = μ - algorithm.Sigma()*standardDeviation
+							x2 = μ + algorithm.Sigma()*standardDeviation
+						}
 
-						gpxDoc.MovementStats.SD.Valid = true
-						gpxDoc.MovementStats.SD.X1 = x1
-						gpxDoc.MovementStats.SD.X2 = x2
+						gpxSegment.MovementStats.SD.Valid = true
+						gpxSegment.MovementStats.SD.X1 = x1
+						gpxSegment.MovementStats.SD.X2 = x2
 
 						// Filter all points which belongs to the standard deviation area
 						for index := 1; index < len(gpxSegment.Points); index++ {
@@ -159,8 +169,12 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 							gpxPoint := gpxSegment.Points[index]
 							gpxPoint.Point.SetPointData(&previousGPXPoint.Point, algorithm)
 
-							pointXValue := gpxPoint.Distance / gpxPoint.Duration
-							if x1 <= pointXValue { // The statement ' pointXValue <= x2' is not needed because all points above the limit is always oving; means just the point's speed is quite fast
+							// pointXValue, _ := algorithm.Speed(gpxPoint.Point.Distance, prevPoint.Point.Duration)
+							// Check if point's Speed above the Standard Deviation
+							// The speed of the point must be of course > 0 to be a moving point
+							// If the SD'x x1 is Zero then one of the previos parameters == 0; that's mostly because too few points in a segment
+							// The statement ' pointXValue <= x2' is not needed because all points above the limit is always oving; means just the point's speed is quite fast
+							if gpxPoint.Speed > 0 && x1 > 0 && x1 <= gpxPoint.Speed {
 								// Point is in standard deviation area
 								gpxSegment.Points[index].IsMoving = true
 								gpxSegment.MovementStats.MovingData.SetValues(&gpxPoint, &prevPoint, index, algorithm)
@@ -169,11 +183,8 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 								gpxSegment.Points[index].IsMoving = false
 								gpxSegment.MovementStats.StoppedData.SetValues(&gpxPoint, &prevPoint, index, algorithm)
 							}
-							// fmt.Println("2. Add to overall data")
 							gpxSegment.MovementStats.OverallData.SetValues(&gpxPoint, &prevPoint, index, algorithm)
-
 						}
-
 					} else {
 						/**
 							Do not use Standard Deviation - Begin

@@ -486,7 +486,15 @@ func example2() {
 
 # Standard Deviation
 
-> https://en.wikipedia.org/wiki/Standard_deviation
+See https://en.wikipedia.org/wiki/Standard_deviation
+```
+3.29053 	~ 99.9%
+2.57583 	~ 99%
+2.17009 	~ 97%
+1.959964 	~ 95%
+```
+
+> From analysis see graphs in '/test/graphs' the Sigma 3.29053 (~99.9%) seems to fit best
 
 |  **Confidence <br/>interval** | **Proportion within** | **Proportion without** |  |
 |  :------: | :------: | :------: | ------ |
