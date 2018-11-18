@@ -124,12 +124,20 @@ var tableCSVData = [][]string{
 	{
 		"Algorithm Name", "# of files", "Execution Time",
 		"GPX Type(s)", "GPX Start Time", "GPX End Time",
-		"GPX Duration", "GPX Distance", "GPX Moving Time", "GPX Moving Distance", "GPX Stopped Time", "GPX Stopped Distance", "GPX Stopped Distance",
-		"Track Start Time", "Track End Time",
-		"Track Duration", "Track Distance", "Track Moving Time", "Track Moving Distance", "Track Stopped Time", "Track Stopped Distance", "Track Stopped Distance",
-		"Segment Start Time", "Segment End Time",
-		"Segment Duration", "Segment Distance", "Segment Moving Time", "Segment Moving Distance", "Segment Stopped Time", "Segment Stopped Distance", "Segment Stopped Distance",
+		"GPX Distance", "GPX Duration", "GPX Moving Distance", "GPX Moving Time", "GPX Stopped Distance", "GPX Stopped Time",
+		// "Track Start Time", "Track End Time",
+		// "Track Duration", "Track Distance", "Track Moving Time", "Track Moving Distance", "Track Stopped Time", "Track Stopped Distance", "Track Stopped Distance",
+		// "Segment Start Time", "Segment End Time",
+		// "Segment Duration", "Segment Distance", "Segment Moving Time", "Segment Moving Distance", "Segment Stopped Time", "Segment Stopped Distance", "Segment Stopped Distance",
 	},
+}
+
+func getCSVDataFromGpx(gpx *geo.GPX) []string {
+	data := []string{
+		gpx.Type, gpx.MovementStats.OverallData.StartTime, gpx.MovementStats.OverallData.EndTime,
+		gpx.MovementStats.OverallData.Distance, gpx.MovementStats.OverallData.Duration, gpx.MovementStats.MovingData.Distance, gpx.MovementStats.MovingData.Duration, gpx.MovementStats.StoppedData.Distance, gpx.MovementStats.StoppedData.Duration,
+	}
+	return data
 }
 
 func writeCSV() {
