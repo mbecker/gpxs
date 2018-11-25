@@ -1,6 +1,7 @@
 package gxml
 
 import (
+	"fmt"
 	"math"
 	"strings"
 
@@ -125,10 +126,13 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 						/**
 							STANDARD DEVIATION -- BEGIN
 						**/
+						fmt.Println("Sum Speed: ", sumSpeed)
+						fmt.Println("Len seg points: ", len(gpxSegment.Points))
 
 						// Standard deviation to have a baseline of points for the calculations
 						// 1. Define the mean mu (μ) for a population series: All summed values / count of values
 						μ := sumSpeed / float64(len(gpxSegment.Points))
+						fmt.Println("mu: ", μ)
 
 						// 2.a) Define Deviation for each point: (x1−μ)
 						// 2.b) Square each deviation: (x1−μ)^2
@@ -146,9 +150,11 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 						 *			In previous step we are starting from point "1" (not "0") but spedd (distance/duration) is defined as follows: The speed from point0 to point1 is set in point1
 						 */
 						variance := squaredDeviationSum / float64((len(gpxSegment.Points)))
+						fmt.Println("Variance: ", variance)
 
 						// 4. Define the standard deviation
 						standardDeviation := math.Sqrt(variance)
+						fmt.Println("Standard Deviation: ", standardDeviation)
 
 						// 5. Define the the x1 and x2 value in which the points should be (sigma σ defines the range)
 						// If the standardDeviation is Zero then one of the previos parameters == 0 ( here of course "standardDeviation", ... ); that's mostly because too few points in a segment
@@ -158,6 +164,8 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 							x1 = μ - algorithm.Sigma()*standardDeviation
 							x2 = μ + algorithm.Sigma()*standardDeviation
 						}
+						fmt.Println("x1: ", x1)
+						fmt.Println("x2: ", x2)
 
 						gpxSegment.MovementStats.SD.Valid = true
 						gpxSegment.MovementStats.SD.X1 = x1
@@ -166,15 +174,16 @@ func Converter00GPX00DocTracks(gpxDoc *geo.GPX, gpx00DocTracks []*GPX00GpxTrk, a
 						// Filter all points which belongs to the standard deviation area
 						for index := 1; index < len(gpxSegment.Points); index++ {
 							previousGPXPoint = gpxSegment.Points[index-1]
+
+							// The point's data is already be set by the previous loop to get the summed speed
 							gpxPoint := gpxSegment.Points[index]
-							gpxPoint.Point.SetPointData(&previousGPXPoint.Point, algorithm)
 
 							// pointXValue, _ := algorithm.Speed(gpxPoint.Point.Distance, prevPoint.Point.Duration)
 							// Check if point's Speed above the Standard Deviation
 							// The speed of the point must be of course > 0 to be a moving point
 							// If the SD'x x1 is Zero then one of the previos parameters == 0; that's mostly because too few points in a segment
 							// The statement ' pointXValue <= x2' is not needed because all points above the limit is always oving; means just the point's speed is quite fast
-							if gpxPoint.Speed > 0 && x1 > 0 && x1 <= gpxPoint.Speed {
+							if gpxPoint.Speed > 0 && x1 <= gpxPoint.Speed {
 								// Point is in standard deviation area
 								gpxSegment.Points[index].IsMoving = true
 								gpxSegment.MovementStats.MovingData.SetValues(&gpxPoint, &prevPoint, index, algorithm)
