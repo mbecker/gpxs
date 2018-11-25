@@ -81,7 +81,7 @@ func createPlot(gpx *geo.GPX, title string, filePath string) {
 		fmt.Println(err)
 		return
 	}
-	lpLineX1.Color = color.RGBA{242, 60, 80, 0xff}
+	lpLineX1.Color = color.RGBA{6, 149, 171, 0xff}
 
 	// Standard Deviation higher border
 	lpLineX2, _, err := plotter.NewLinePoints(points[1])
