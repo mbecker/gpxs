@@ -58,11 +58,12 @@ type GPX00GpxRte struct {
 
 //GPX10GpxTrk struct fiels for a track
 type GPX00GpxTrk struct {
-	XMLName xml.Name `xml:"trk"`
-	Name    string   `xml:"name,omitempty"`
-	Cmt     string   `xml:"cmt,omitempty"`
-	Desc    string   `xml:"desc,omitempty"`
-	Src     string   `xml:"src,omitempty"`
+	XMLName   xml.Name `xml:"trk"`
+	Name      string   `xml:"name,omitempty"`
+	Timestamp string   `xml:"time,omitempty"`
+	Cmt       string   `xml:"cmt,omitempty"`
+	Desc      string   `xml:"desc,omitempty"`
+	Src       string   `xml:"src,omitempty"`
 	// TODO:
 	//Links    []Link   `xml:"link"`
 	Number   generic.NullableInt `xml:"number,omitempty"`

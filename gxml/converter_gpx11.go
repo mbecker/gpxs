@@ -162,9 +162,10 @@ func convertFromGpx11Models(gpx11Doc *GPX11Gpx, algorithm geo.Algorithm) *geo.GP
 	}
 	*/
 
-	// TODO: If no Time is given then use the first point's time
 	if len(gpx11Doc.Timestamp) > 0 {
 		gpxDoc.Timestamp, _ = parseGPXTime(gpx11Doc.Timestamp)
+	} else if len(gpx11Doc.Tracks) > 0 && len(gpx11Doc.Tracks[0].Timestamp) > 0 {
+		gpxDoc.Timestamp, _ = parseGPXTime(gpx11Doc.Tracks[0].Timestamp)
 	} else {
 		gpxDoc.Timestamp = new(time.Time)
 	}

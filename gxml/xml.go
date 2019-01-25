@@ -17,7 +17,11 @@ import (
 	"github.com/mbecker/gpxs/geo"
 )
 
-const formattingTimelayout = "2006-01-02T15:04:05Z"
+const (
+	formattingTimelayout = "2006-01-02T15:04:05Z"
+	RFC3339Millis        = "2006-01-02T15:04:05.000Z" // forced microseconds -- https://github.com/tendermint/go-amino/pull/13/files
+	RFC3339Modified      = "2006-01-02T15:04:05Z"
+)
 
 // parsingTimelayouts defines a list of possible time formats
 var parsingTimelayouts = []string{
@@ -26,6 +30,8 @@ var parsingTimelayouts = []string{
 	"2006-01-02T15:04:05",
 	"2006-01-02 15:04:05Z",
 	"2006-01-02 15:04:05",
+	time.RFC3339Nano, // https://github.com/tendermint/go-amino/pull/13/files
+	RFC3339Modified,
 }
 
 func init() {
@@ -114,7 +120,6 @@ func parseGPXTime(timestr string) (*time.Time, error) {
 	timestr = strings.Trim(timestr, " \t\n\r")
 	for _, timeLayout := range parsingTimelayouts {
 		t, err := time.Parse(timeLayout, timestr)
-
 		if err == nil {
 			return &t, nil
 		}

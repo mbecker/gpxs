@@ -76,6 +76,7 @@ type GPXRoute struct {
 //GPXTrack implements a gpx track
 type GPXTrack struct {
 	Name        string
+	Timestamp   *time.Time
 	Comment     string
 	Description string
 	Source      string

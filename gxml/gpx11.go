@@ -164,11 +164,12 @@ type GPX11Gpx struct {
 	 * TODO:
 	 * - [x] Can be me more tane one link for AuthorLink?
 	 */
-	AuthorLink *GPX00GpxLink       `xml:"metadata>author>link,omitempty"`
-	Copyright  *GPX11GpxCopyright  `xml:"metadata>copyright,omitempty"`
-	Link       *GPX00GpxLink       `xml:"metadata>link,omitempty"`
-	Timestamp  string              `xml:"metadata>time,omitempty"`
-	Keywords   string              `xml:"metadata>keywords,omitempty"`
+	AuthorLink *GPX00GpxLink      `xml:"metadata>author>link,omitempty"`
+	Copyright  *GPX11GpxCopyright `xml:"metadata>copyright,omitempty"`
+	Link       *GPX00GpxLink      `xml:"metadata>link,omitempty"`
+	Timestamp  string             `xml:"metadata>time,omitempty"`
+	Keywords   string             `xml:"metadata>keywords,omitempty"`
+
 	Bounds     *GPX11GpxBounds     `xml:"bounds"`
 	Extensions *GPX11GpxExtensions `xml:"extensions"`
 	Waypoints  []*GPX00GpxPoint    `xml:"wpt"`
